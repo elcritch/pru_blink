@@ -8,3 +8,4 @@ build.log
 .nerves
 /rootfs_overlay/lib/firmware/am335x-pru0-fw
 /rootfs_overlay/lib/firmware/am335x-pru1-fw
+pru/lib/rpmsg_lib.lib

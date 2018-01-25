@@ -68,6 +68,7 @@ defmodule PruBlink.Mixfile do
       {:nerves_network, "~> 0.3"},
       {:nerves_init_gadget, "~> 0.2"},
       {:nerves_network_interface, "~> 0.4"},
+      {:nerves_firmware_ssh, "~> 0.2"},
     ] ++ system(target)
   end
 

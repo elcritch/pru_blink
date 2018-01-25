@@ -8,25 +8,33 @@ use Mix.Config
 # Customize the firmware. Uncomment all or parts of the following
 # to add files to the root filesystem or modify the firmware
 # archive.
+config :logger, level: :debug
 
 # config :nerves, :firmware,
 #   rootfs_overlay: "rootfs_overlay",
 #   fwup_conf: "config/fwup.conf"
 
-config :nerves, :firmware,
-  rootfs_overlay: "rootfs_overlay"
+config :pru_blink, interface: :eth0
+#config :hello_network, interface: :wlan0
+#config :hello_network, interface: :usb0
 
-# Use bootloader to start the main application. See the bootloader
-# docs for separating out critical OTP applications such as those
-# involved with firmware updates.
+key_mgmt = System.get_env("NERVES_NETWORK_KEY_MGMT") || "WPA-PSK"
+
+config :nerves_network, :default,
+  eth0: [
+    ipv4_address_method: :dhcp
+  ]
+
 config :bootloader,
-  init: [:nerves_runtime],
+  init: [:nerves_runtime, :nerves_network, :nerves_init_gadget],
   app: :pru_blink
 
 
+config :nerves, :firmware,
+  rootfs_overlay: "rootfs_overlay"
 
-# Import target specific config. This must remain at the bottom
-# of this file so it overrides the configuration defined above.
-# Uncomment to use target specific configurations
+# config :nerves_firmware_ssh,
+#   authorized_keys: [
+#     File.read!(Path.join(System.user_home!, ".ssh/id_rsa.pub"))
+#   ]
 
-# import_config "#{Mix.Project.config[:target]}.exs"

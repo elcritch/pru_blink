@@ -14,6 +14,7 @@ defmodule PruBlink.Mixfile do
      version: "0.1.0",
      elixir: "~> 1.4",
      compilers: [:elixir_make | Mix.compilers],
+     make_env: %{ "PRU_CGT" => "\${NERVES_TOOLCHAIN}/share/ti-cgt-pru/"},
      target: @target,
      archives: [nerves_bootstrap: "~> 0.6"],
      deps_path: "deps/#{@target}",
@@ -52,7 +53,7 @@ defmodule PruBlink.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   def deps do
-    [{:nerves, "~> 0.7", runtime: false},
+    [{:nerves, "~> 0.8", runtime: false},
      {:elixir_make, "~> 0.3"},
      {:pru, "~> 0.1.0"}] ++
     deps(@target)
@@ -63,7 +64,10 @@ defmodule PruBlink.Mixfile do
   def deps(target) do
     [
       {:bootloader, "~> 0.1"},
-      {:nerves_runtime, "~> 0.4"}
+      {:nerves_runtime, "~> 0.5"},
+      {:nerves_network, "~> 0.3"},
+      {:nerves_init_gadget, "~> 0.2"},
+      {:nerves_network_interface, "~> 0.4"},
     ] ++ system(target)
   end
 
@@ -72,6 +76,15 @@ defmodule PruBlink.Mixfile do
   def system("rpi2"), do: Mix.raise "Sorry, this example only works on BeagleBone Black/Green"
   def system("rpi3"), do: Mix.raise "Sorry, this example only works on BeagleBone Black/Green"
   def system("bbb"), do: [{:nerves_system_bbb, ">= 0.0.0", runtime: false}]
+  def system("bbb_custom") do
+    [{:nerves_system_bbb,
+     path: "../../nerves_system_bbb",
+     runtime: false}]
+    # {:nerves_system_bbb_pru,
+    # branch: "master", git: "https://github.com/elcritch/nerves_system_bbb.git", runtime: false}
+
+  end
+
   def system("linkit"), do: Mix.raise "Sorry, this example only works on BeagleBone Black/Green"
   def system("ev3"), do: Mix.raise "Sorry, this example only works on BeagleBone Black/Green"
   def system("qemu_arm"), do: Mix.raise "Sorry, this example only works on BeagleBone Black/Green"

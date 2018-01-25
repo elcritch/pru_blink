@@ -55,8 +55,9 @@ defmodule PruBlink.Mixfile do
   def deps do
     [{:nerves, "~> 0.8", runtime: false},
      {:elixir_make, "~> 0.3"},
-     {:pru, "~> 0.1.0"}] ++
-    deps(@target)
+     # {:pru, "~> 0.1.0"},
+     {:pru, "~> 0.2.0", path: "../pru/"},
+    ] ++ deps(@target)
   end
 
   # Specify target specific dependencies
@@ -79,7 +80,7 @@ defmodule PruBlink.Mixfile do
   def system("bbb"), do: [{:nerves_system_bbb, ">= 0.0.0", runtime: false}]
   def system("bbb_custom") do
     [{:nerves_system_bbb,
-     path: "../../nerves_system_bbb",
+     path: "../nerves_system_bbb",
      runtime: false}]
     # {:nerves_system_bbb_pru,
     # branch: "master", git: "https://github.com/elcritch/nerves_system_bbb.git", runtime: false}

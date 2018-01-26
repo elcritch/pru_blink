@@ -111,9 +111,9 @@ void main(void)
         Stream sb;
         stream_setup(&sb, buf, 128);
 
-        msgpck_write_map_header(&sb, 6);
+        msgpck_write_array_header(&sb, 2);
 
-        msgpck_write_string(&sb, "echo", 3);
+        msgpck_write_string(&sb, "echo", 4);
         msgpck_write_string(&sb, (char *)payload, len);
 
 				pru_rpmsg_send(&transport, dst, src, sb.data, sb.max_position);

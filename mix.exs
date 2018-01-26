@@ -59,6 +59,7 @@ defmodule PruBlink.Mixfile do
      # {:nerves, "~> 0.9.0", runtime: false},
      {:nerves, git: "https://github.com/elcritch/nerves.git", branch: "master", override: true },
      {:elixir_make, "~> 0.3"},
+     {:msgpax, "~> 2.1"},
      # {:pru, "~> 0.1.0"},
      # {:pru, "~> 0.2.0", path: "../pru/"},
      {:pru, git: "https://github.com/elcritch/pru.git", branch: "master"},

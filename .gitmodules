@@ -1,0 +1,3 @@
+[submodule "pru/lib/src/arduino_msgpack"]
+	path = pru/lib/src/arduino_msgpack
+	url = https://github.com/elcritch/arduino_msgpack.git

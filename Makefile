@@ -1,9 +1,9 @@
-SUBDIRS = pru/lib/src/rpmsg_lib pru/0 pru/1
+SUBDIRS = pru/lib/src/rpmsg_lib pru/lib/src/msgpack_lib pru/0 pru/1
 
 all: $(SUBDIRS)
 
 $(SUBDIRS):
-	env | grep -i -e nerves -e cgt | sort
+	# env | grep -i -e nerves -e cgt | sort
 	$(MAKE) -C $@
 
 clean:

@@ -39,6 +39,8 @@
 #include <pru_rpmsg.h>
 #include "resource_table_1.h"
 
+#include <msgpck.h>
+
 volatile register uint32_t __R31;
 
 /* Host-1 Interrupt sets bit 31 in register R31 */
@@ -71,6 +73,7 @@ volatile register uint32_t __R31;
 #define VIRTIO_CONFIG_S_DRIVER_OK	4
 
 uint8_t payload[RPMSG_BUF_SIZE];
+uint8_t buf[128];
 
 /*
  * main.c
@@ -94,6 +97,7 @@ void main(void)
 	/* Initialize the RPMsg transport structure */
 	pru_rpmsg_init(&transport, &resourceTable.rpmsg_vring0, &resourceTable.rpmsg_vring1, TO_ARM_HOST, FROM_ARM_HOST);
 
+
 	/* Create the RPMsg channel between the PRU and ARM user space using the transport structure. */
 	while (pru_rpmsg_channel(RPMSG_NS_CREATE, &transport, CHAN_NAME, CHAN_DESC, CHAN_PORT) != PRU_RPMSG_SUCCESS);
 	while (1) {
@@ -104,7 +108,14 @@ void main(void)
 			/* Receive all available messages, multiple messages can be sent per kick */
 			while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) == PRU_RPMSG_SUCCESS) {
 				/* Echo the message back to the same address from which we just received */
-				pru_rpmsg_send(&transport, dst, src, payload, len);
+        StreamBuff sb(buf, 128);
+
+        msgpck_write_map_header(&sb, 6);
+
+        msgpck_write_string(&sb, "echo", 3);
+        msgpck_write_string(&sb, payload, len);
+
+				pru_rpmsg_send(&transport, dst, src, stream->data, stream->max_position);
 			}
 		}
 	}

@@ -37,9 +37,9 @@ GEN_DIR=gen
 CFLAGS=-v3 -O2 --display_error_number --endian=little --hardware_mac=on --obj_directory=$(GEN_DIR) --pp_directory=$(GEN_DIR) -ppd -ppa
 
 TARGET=$(GEN_DIR)/$(PROJ_NAME).lib
-SOURCES=$(wildcard *.cpp)
+SOURCES=$(wildcard *.c)
 #Using .object instead of .obj in order to not conflict with the CCS build process
-OBJECTS=$(patsubst %,$(GEN_DIR)/%,$(SOURCES:.cpp=.object))
+OBJECTS=$(patsubst %,$(GEN_DIR)/%,$(SOURCES:.c=.object))
 
 all: printStart $(TARGET) printEnd
 
@@ -66,7 +66,7 @@ $(TARGET): $(OBJECTS)
 	@echo 'Output files can be found in the "$(GEN_DIR)" directory'
 
 # Invokes the compiler on all c files in the directory to create the object files
-$(GEN_DIR)/%.object: %.cpp
+$(GEN_DIR)/%.object: %.c
 	@mkdir -p $(GEN_DIR)
 	@echo ''
 	@echo 'Building file: $<'

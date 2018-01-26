@@ -14,18 +14,29 @@
  * limitations under the License.
  */
 
-#ifndef heads_msgpck_h
-#define heads_msgpck_h
+#ifndef __HEADS_MSGPCK_H__
+#define __HEADS_MSGPCK_H__
 
 /* #include <Arduino.h> */
 /* #include <Stream.h> */
-#include "types.h"
+
+  #include <stdint.h>
+#include <stdbool.h>
+  #include <pru_types.h>
 
 #ifndef MSG_PACK_JSON_BUFF_SIZE
 #define MSG_PACK_JSON_BUFF_SIZE 15
 #endif
 
-enum AutoTypes : uint8_t {
+#ifndef ssize_t
+typedef int ssize_t;
+#endif
+
+#ifndef byte
+typedef uint8_t byte;
+#endif
+
+enum AutoTypes {
   msgpck_empty = 0xff,
   msgpck_nil = 0xc0,
   msgpck_bool = 0xc2,
@@ -39,6 +50,88 @@ enum AutoTypes : uint8_t {
   msgpck_map = 0xde,
   msgpck_unknown = 0x00,
 };
+
+
+struct StreamBuff
+{
+    uint8_t *data;
+    uint8_t pos;
+    uint8_t max_position;
+    ssize_t len;
+
+};
+
+typedef struct StreamBuff Stream;
+
+    // StreamBuff(uint8_t *data_buffer, ssize_t data_len)
+    //   : data(data_buffer), len(data_len), pos(0)
+    // {
+    // }
+
+    int stream_available(Stream * sb) {
+      return sb->len - sb->pos;
+    }
+
+    /* int read() { */
+    /*   if (available() <= 0) */
+    /*     return -1; */
+
+    /*   max_position = pos + 1; */
+
+    /*   return data[pos++]; */
+    /* } */
+
+int stream_readBytes(Stream * sb, uint8_t * buffer, int length) {
+  if (stream_available(sb) < length)
+        return -1;
+
+    sb->max_position = length + 1;
+
+    uint32_t i;
+    for(i=0;i<length;i++){
+      buffer[i] = sb->data[sb->pos+i];
+    }
+
+    return length;
+  }
+
+ssize_t stream_write(Stream * sb, uint8_t d) {
+    if (stream_available(sb) <= 0)
+      return -1;
+
+    sb->max_position = sb->pos+1;
+    sb->data[sb->pos++] = d;
+
+    return 1;
+};
+
+int stream_peek(Stream * sb) {
+  return sb->data[sb->pos];
+}
+
+void stream_flush(Stream * sb) {
+  ssize_t i;
+  for (i = 0; i < sb->len; ++i) {
+    sb->data[i] = 0;
+  }
+  sb->pos = 0;
+  sb->max_position = 0;
+}
+
+void stream_clear(Stream * sb) {
+  stream_flush(sb);
+}
+
+void stream_reset(Stream * sb) {
+  sb->pos = 0;
+}
+
+void stream_resetAllPositions(Stream * sb) {
+        sb->pos = 0;
+        sb->max_position = 0;
+}
+
+
 
 // ************************** Look up *****************************/
 
@@ -228,7 +321,7 @@ bool msgpack_read_float(Stream * s, float *f);
  * return: true if next data has been read correctly, false if not
  *
 */
-bool msgpck_read_string(Stream * s, char * str, uint32_t max_size, uint32_t *str_size);
+bool msgpck_read_string_sz(Stream * s, char * str, uint32_t max_size, uint32_t *str_size);
 
 /**
  * Function: msgpck_read_string
@@ -255,7 +348,7 @@ bool msgpck_read_string(Stream * s, char * str, uint32_t max_size);
  * return: true if next data has been read correctly, false if not
  *
 */
-bool msgpck_read_bin(Stream * s, byte * bin, uint32_t max_size, uint32_t *bin_size);
+bool msgpck_read_bin_sz(Stream * s, byte * bin, uint32_t max_size, uint32_t *bin_size);
 
 /**
  * Function: msgpck_read_bin
@@ -326,7 +419,7 @@ void msgpck_write_bool(Stream * s, bool b);
  *  uint8_t u: integer value to write
  *
 */
-void msgpck_write_integer(Stream * s, uint8_t u);
+void msgpck_write_integer_u8(Stream * s, uint8_t u);
 
 /**
  * Function: msgpck_write_integer
@@ -336,7 +429,7 @@ void msgpck_write_integer(Stream * s, uint8_t u);
  *  uint16_t u: integer value to write
  *
 */
-void msgpck_write_integer(Stream * s, uint16_t u);
+void msgpck_write_integer_u16(Stream * s, uint16_t u);
 
 /**
  * Function: msgpck_write_integer
@@ -346,7 +439,7 @@ void msgpck_write_integer(Stream * s, uint16_t u);
  *  uint32_t u: integer value to write
  *
 */
-void msgpck_write_integer(Stream * s, uint32_t u);
+void msgpck_write_integer_u32(Stream * s, uint32_t u);
 
 /**
  * Function: msgpck_write_integer
@@ -356,7 +449,7 @@ void msgpck_write_integer(Stream * s, uint32_t u);
  *  uint64_t u: integer value to write
  *
 */
-void msgpck_write_integer(Stream * s, uint64_t u);
+void msgpck_write_integer_u64(Stream * s, uint64_t u);
 
 /**
  * Function: msgpck_write_integer
@@ -366,7 +459,7 @@ void msgpck_write_integer(Stream * s, uint64_t u);
  *  int8_t i: integer value to write
  *
 */
-void msgpck_write_integer(Stream * s, int8_t i);
+void msgpck_write_integer_i8(Stream * s, int8_t i);
 
 /**
  * Function: msgpck_write_integer
@@ -376,7 +469,7 @@ void msgpck_write_integer(Stream * s, int8_t i);
  *  int16_t i: integer value to write
  *
 */
-void msgpck_write_integer(Stream * s, int16_t i);
+void msgpck_write_integer_i16(Stream * s, int16_t i);
 
 /**
  * Function: msgpck_write_integer
@@ -386,7 +479,7 @@ void msgpck_write_integer(Stream * s, int16_t i);
  *  int32_t i: integer value to write
  *
 */
-void msgpck_write_integer(Stream * s, int32_t i);
+void msgpck_write_integer_i32(Stream * s, int32_t i);
 
 /**
  * Function: msgpck_write_integer
@@ -396,7 +489,7 @@ void msgpck_write_integer(Stream * s, int32_t i);
  *  int64_t i: integer value to write
  *
 */
-void msgpck_write_integer(Stream * s, int64_t i);
+void msgpck_write_integer_i64(Stream * s, int64_t i);
 
 /**
  * Function: msgpck_write_float
@@ -418,16 +511,6 @@ void msgpck_write_float(Stream *s, float f);
  *
 */
 void msgpck_write_string(Stream * s, char * str, uint32_t str_size);
-
-/**
- * Function: msgpck_write_string
- * Description: Write a string on the output stream
- *
- * Parameter: Stream * s : output stream.
- *  String str: string to write
- *
-*/
-void msgpck_write_string(Stream * s, String str);
 
 /**
  * Function: msgpck_write_bin
@@ -468,88 +551,6 @@ void msgpck_write_map_header(Stream * s, uint32_t map_size);
  *  Stream * input : input stream.
  *
 */
-void msgpck_to_json(Stream * output, Stream * input, size_t BUFFER_SIZE);
-
-
-
-class StreamBuff : public Stream
-{
-  public:
-
-    uint8_t *data;
-    uint8_t pos;
-    uint8_t max_position;
-    size_t len;
-
-    StreamBuff(uint8_t *data_buffer, size_t data_len)
-      : data(data_buffer), len(data_len), pos(0)
-    {
-    }
-
-    virtual int available() {
-      return len - pos;
-    }
-
-    virtual int read() {
-      if (available() <= 0)
-        return -1;
-
-      max_position = pos + 1;
-
-      return data[pos++];
-    }
-
-    virtual size_t write(uint8_t d) {
-      if (available() <= 0)
-        return -1;
-
-      max_position = pos+1;
-      data[pos++] = d;
-
-      return 1;
-    };
-
-    virtual int peek() {
-      return data[pos];
-    }
-
-    virtual void flush() {
-      for (size_t i = 0; i < len; ++i) {
-        data[i] = 0;
-      }
-      pos = 0;
-      max_position = 0;
-    }
-
-    StreamBuff& clear() {
-      this->flush();
-      return *this;
-    }
-
-    StreamBuff& reset() {
-        pos = 0;
-        return *this;
-    }
-
-    StreamBuff& resetAllPositions() {
-        pos = 0;
-        max_position = 0;
-        return *this;
-    }
-
-};
-
-template<size_t BUFFER_LEN>
-class StreamBuffStack : public StreamBuff
-{
-  uint8_t data_buf_stack[BUFFER_LEN];
-
-  public:
-
-    StreamBuffStack() : StreamBuff(data_buf_stack, BUFFER_LEN)
-    {
-    }
-
-};
+void msgpck_to_json(Stream * output, Stream * input, ssize_t BUFFER_SIZE);
 
 #endif

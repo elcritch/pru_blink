@@ -108,14 +108,15 @@ void main(void)
 			/* Receive all available messages, multiple messages can be sent per kick */
 			while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) == PRU_RPMSG_SUCCESS) {
 				/* Echo the message back to the same address from which we just received */
-        StreamBuff sb(buf, 128);
+        Stream sb;
+        stream_setup(&sb, buf, 128);
 
         msgpck_write_map_header(&sb, 6);
 
         msgpck_write_string(&sb, "echo", 3);
-        msgpck_write_string(&sb, payload, len);
+        msgpck_write_string(&sb, (char *)payload, len);
 
-				pru_rpmsg_send(&transport, dst, src, stream->data, stream->max_position);
+				pru_rpmsg_send(&transport, dst, src, sb.data, sb.max_position);
 			}
 		}
 	}

@@ -63,14 +63,14 @@ struct StreamBuff
 
 typedef struct StreamBuff Stream;
 
+void stream_setup(Stream * sb, uint8_t *data_buffer, ssize_t data_len);
+
     // StreamBuff(uint8_t *data_buffer, ssize_t data_len)
     //   : data(data_buffer), len(data_len), pos(0)
     // {
     // }
 
-    int stream_available(Stream * sb) {
-      return sb->len - sb->pos;
-    }
+int stream_available(Stream * sb);
 
     /* int read() { */
     /*   if (available() <= 0) */
@@ -81,55 +81,19 @@ typedef struct StreamBuff Stream;
     /*   return data[pos++]; */
     /* } */
 
-int stream_readBytes(Stream * sb, uint8_t * buffer, int length) {
-  if (stream_available(sb) < length)
-        return -1;
+int stream_readBytes(Stream * sb, uint8_t * buffer, int length);
 
-    sb->max_position = length + 1;
+ssize_t stream_write(Stream * sb, uint8_t d);
 
-    uint32_t i;
-    for(i=0;i<length;i++){
-      buffer[i] = sb->data[sb->pos+i];
-    }
+int stream_peek(Stream * sb);
 
-    return length;
-  }
+void stream_flush(Stream * sb);
 
-ssize_t stream_write(Stream * sb, uint8_t d) {
-    if (stream_available(sb) <= 0)
-      return -1;
+void stream_clear(Stream * sb);
 
-    sb->max_position = sb->pos+1;
-    sb->data[sb->pos++] = d;
+void stream_reset(Stream * sb);
 
-    return 1;
-};
-
-int stream_peek(Stream * sb) {
-  return sb->data[sb->pos];
-}
-
-void stream_flush(Stream * sb) {
-  ssize_t i;
-  for (i = 0; i < sb->len; ++i) {
-    sb->data[i] = 0;
-  }
-  sb->pos = 0;
-  sb->max_position = 0;
-}
-
-void stream_clear(Stream * sb) {
-  stream_flush(sb);
-}
-
-void stream_reset(Stream * sb) {
-  sb->pos = 0;
-}
-
-void stream_resetAllPositions(Stream * sb) {
-        sb->pos = 0;
-        sb->max_position = 0;
-}
+void stream_resetAllPositions(Stream * sb);
 
 
 

@@ -30,6 +30,82 @@
 // #define msgpck_map 0xde
 // #define msgpck_unknown 0x00
 
+void stream_setup(Stream * sb, uint8_t *data_buffer, ssize_t data_len)
+ {
+   sb->data = data_buffer;
+   sb->len = data_len;
+   sb->pos = 0;
+ }
+
+    // StreamBuff(uint8_t *data_buffer, ssize_t data_len)
+    //   : data(data_buffer), len(data_len), pos(0)
+    // {
+    // }
+
+    int stream_available(Stream * sb) {
+      return sb->len - sb->pos;
+    }
+
+    /* int read() { */
+    /*   if (available() <= 0) */
+    /*     return -1; */
+
+    /*   max_position = pos + 1; */
+
+    /*   return data[pos++]; */
+    /* } */
+
+int stream_readBytes(Stream * sb, uint8_t * buffer, int length) {
+  if (stream_available(sb) < length)
+        return -1;
+
+    sb->max_position = length + 1;
+
+    uint32_t i;
+    for(i=0;i<length;i++){
+      buffer[i] = sb->data[sb->pos+i];
+    }
+
+    return length;
+  }
+
+ssize_t stream_write(Stream * sb, uint8_t d) {
+    if (stream_available(sb) <= 0)
+      return -1;
+
+    sb->max_position = sb->pos+1;
+    sb->data[sb->pos++] = d;
+
+    return 1;
+};
+
+int stream_peek(Stream * sb) {
+  return sb->data[sb->pos];
+}
+
+void stream_flush(Stream * sb) {
+  ssize_t i;
+  for (i = 0; i < sb->len; ++i) {
+    sb->data[i] = 0;
+  }
+  sb->pos = 0;
+  sb->max_position = 0;
+}
+
+void stream_clear(Stream * sb) {
+  stream_flush(sb);
+}
+
+void stream_reset(Stream * sb) {
+  sb->pos = 0;
+}
+
+void stream_resetAllPositions(Stream * sb) {
+        sb->pos = 0;
+        sb->max_position = 0;
+}
+
+
 
 uint8_t msgpck_what_next(Stream * s) {
   int b = stream_peek(s);

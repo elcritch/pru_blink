@@ -3,7 +3,7 @@ SUBDIRS = pru/lib/src/rpmsg_lib pru/0 pru/1
 all: $(SUBDIRS)
 
 $(SUBDIRS):
-	env | sort | grep -i -e nerves -e cc
+	env | grep -i -e nerves -e cgt | sort
 	$(MAKE) -C $@
 
 clean:

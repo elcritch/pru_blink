@@ -14,7 +14,9 @@ defmodule PruBlink.Mixfile do
      version: "0.1.0",
      elixir: "~> 1.4",
      compilers: [:elixir_make | Mix.compilers],
-     make_env: %{ "PRU_CGT" => "\${NERVES_TOOLCHAIN}/share/ti-cgt-pru/"},
+     #make_env: %{ "PRU_CGT" => "\${NERVES_SYSTEM}/extras/ti-cgt-pru/"},
+     # hack -- need support in nerves package 
+     make_env: %{ "PRU_CGT" => System.cwd() <> "/deps/#{@target}/nerves_pru_icss/ti-cgt-pru"},
      target: @target,
      archives: [nerves_bootstrap: "~> 0.6"],
      deps_path: "deps/#{@target}",
@@ -53,7 +55,9 @@ defmodule PruBlink.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   def deps do
-    [{:nerves, "~> 0.8", runtime: false},
+    [
+     # {:nerves, "~> 0.9.0", runtime: false},
+     {:nerves, git: "https://github.com/elcritch/nerves.git", branch: "master", override: true },
      {:elixir_make, "~> 0.3"},
      # {:pru, "~> 0.1.0"},
      {:pru, "~> 0.2.0", path: "../pru/"},
@@ -70,6 +74,7 @@ defmodule PruBlink.Mixfile do
       {:nerves_init_gadget, "~> 0.2"},
       {:nerves_network_interface, "~> 0.4"},
       {:nerves_firmware_ssh, "~> 0.2"},
+      {:nerves_pru_icss, "~> 0.1", git: "https://github.com/elcritch/nerves_pru_icss.git", branch: "master"},
     ] ++ system(target)
   end
 
@@ -77,7 +82,8 @@ defmodule PruBlink.Mixfile do
   def system("rpi0"), do: Mix.raise "Sorry, this example only works on BeagleBone Black/Green"
   def system("rpi2"), do: Mix.raise "Sorry, this example only works on BeagleBone Black/Green"
   def system("rpi3"), do: Mix.raise "Sorry, this example only works on BeagleBone Black/Green"
-  def system("bbb"), do: [{:nerves_system_bbb, ">= 0.0.0", runtime: false}]
+  def system("bbb"), do: [{:nerves_system_bbb, "~> 0.20.0", runtime: false}]
+  def system("bbb_pru"), do: [{:nerves_system_bbb, "~> 0.20.0", github: "elcritch/nerves_system_bbb", branch: "manual-add-ti-cgt-pru",  runtime: false}]
   def system("bbb_custom") do
     [{:nerves_system_bbb,
      path: "../nerves_system_bbb",
@@ -95,8 +101,9 @@ defmodule PruBlink.Mixfile do
   # We do not invoke the Nerves Env when running on the Host
   def aliases("host"), do: []
   def aliases(_target) do
-    ["deps.precompile": ["nerves.precompile", "deps.precompile"],
-     "deps.loadpaths":  ["deps.loadpaths", "nerves.loadpaths"]]
+    # ["deps.precompile": ["nerves.precompile", "deps.precompile"],
+    #  "deps.loadpaths":  ["deps.loadpaths", "nerves.loadpaths"]]
+    []
+    |> Nerves.Bootstrap.add_aliases()
   end
-
 end

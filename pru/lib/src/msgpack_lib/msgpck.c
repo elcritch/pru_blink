@@ -59,14 +59,12 @@ int stream_readBytes(Stream * sb, uint8_t * buffer, int length) {
   if (stream_available(sb) < length)
         return -1;
 
-
     uint32_t i;
-    for(i=0;i<length;i++){
-      buffer[i] = sb->data[sb->pos+i];
+    for(i=0; i < length; i++) {
+      *(buffer+i) = *(sb->data + sb->pos++);
     }
 
-    sb->pos = sb->pos + length;
-    sb->max_position = length + 1;
+    sb->max_position = sb->pos + 1;
 
     return length;
   }

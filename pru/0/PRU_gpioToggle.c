@@ -44,8 +44,7 @@ volatile register uint32_t __R31;
 /* PRU-to-ARM interrupt */
 #define PRU_SCRATCHPAD_1 10
 
-#define PRU1_PRU0_INTR_SET (18+16)
-#define PRU1_PRU0_INTR_CLR (18)
+#define PRU1_PRU0_INTERRUPT (16)
 
 typedef struct {
 	uint32_t speed;
@@ -61,6 +60,7 @@ void main(void)
 
 	/* Clear SYSCFG[STANDBY_INIT] to enable OCP master port */
 	CT_CFG.SYSCFG_bit.STANDBY_INIT = 0;
+	CT_INTC.SICR_bit.STS_CLR_IDX = PRU1_PRU0_INTERRUPT;
 
 	/* Toggle GPO pins
     https://github.com/derekmolloy/boneDeviceTree/blob/master/docs/BeagleboneBlackP8HeaderTable.pdf
@@ -74,17 +74,20 @@ void main(void)
 	while (1) {
 		__R30 ^= gpio;
 
-    for (i = settings.speed + 1; i > 0; --i) {
+    for (i = settings.speed; i > 0; --i) {
       __delay_cycles(10000000);
     }
 
-    /* if ((__R31 & (1<<30)) == 0) { */
+    if (CT_INTC.SRSR0 & (1 << (16+9)) ) {
       /* XFR registers R5-R10 from PRU0 to PRU1 */
       /* 14 is the device_id that signifies a PRU to PRU transfer */
-      __xin(PRU_SCRATCHPAD_1, 1, 0, settings);
+      /* __xin(PRU_SCRATCHPAD_1, 5, 0, settings); */
 
       /* Clear the status of the interrupt */
-      /* CT_INTC.SICR = PRU1_PRU0_INTR_CLR; */
-    /* } */
+      settings.speed += 2;
+      /* CT_INTC.SICR = PRU1_PRU0_INTERRUPT; */
+      /* CT_INTC.SICR_bit.STS_CLR_IDX = PRU1_PRU0_INTERRUPT; */
+      CT_INTC.SECR0 = (1 << (16 + 9));
+    }
 	}
 }

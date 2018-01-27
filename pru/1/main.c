@@ -53,6 +53,8 @@ volatile register uint32_t __R31;
 #define TO_ARM_HOST			18
 #define FROM_ARM_HOST			19
 
+#define PRU1_PRU0_INTERRUPT (16)
+
 /*
  * Using the name 'rpmsg-client-sample' will probe the RPMsg sample driver
  * found at linux-x.y.z/samples/rpmsg/rpmsg_client_sample.c
@@ -78,9 +80,6 @@ char cmd[16];
 
 /* PRU-to-ARM interrupt */
 #define PRU_SCRATCHPAD_1 10
-
-#define PRU1_PRU0_INTR_SET (18+16)
-#define PRU1_PRU0_INTR_CLR (18)
 
 typedef struct {
 	uint32_t speed;
@@ -131,20 +130,34 @@ void main(void)
         uint32_t arrsz, speed;
         if (msgpck_read_array_size(&rx, &arrsz) && arrsz == 2 &&
             msgpck_read_string(&rx, cmd, sizeof(cmd)) &&
-            msgpck_read_integer(&rx, &speed, 4) &&
-            strcmp("set", cmd, sizeof(cmd)) == 0
+            msgpck_read_integer(&rx, &speed, 4) 
         ) {
           /* Update settings */
           settings.speed = speed;
-          __xout(PRU_SCRATCHPAD_1, 1, 0, settings); // 1 cycle op
+          /* __xout(PRU_SCRATCHPAD_1, 5, 0, settings); // 1 cycle op */
           /* Let PRU0 know that settings are updated*/
           /* __R31 = PRU1_PRU0_INTR_SET; */
+          if (strcmp("set31", cmd, sizeof(cmd)) == 0) {
+            settings.speed = speed;
+            __R31 = (1<<5) | 9;
+          } else if (strcmp("secr0", cmd, sizeof(cmd)) == 0) {
+            CT_INTC.SECR0 = (1 << (16 + 9));
+          } else if (strcmp("secr1", cmd, sizeof(cmd)) == 0) {
+            CT_INTC.SECR1 = (1 << speed);
+          }
+
+          // Pru.Port.write(pid, Msgpax.pack!(["secr0", 16+9 ]) |> IO.iodata_to_binary )
+          // Pru.Port.write(pid, Msgpax.pack!(["set31", (1<<<5) ||| 9 ]) |> IO.iodata_to_binary ) 
 
           /* Send OK back to port driver */
-          msgpck_write_array_header(&sb, 3);
+          msgpck_write_array_header(&sb, 7);
           msgpck_write_string(&sb, "ok", 2);
-          msgpck_write_string(&sb, cmd, 3);
-          msgpck_write_integer_u32(&sb, speed);
+          msgpck_write_string(&sb, cmd, 5);
+          msgpck_write_integer_u32(&sb, __R31);
+          msgpck_write_integer_u32(&sb, CT_INTC.SRSR0);
+          msgpck_write_integer_u32(&sb, CT_INTC.SRSR0 & ( 1 << (16+9) ));
+          msgpck_write_integer_u32(&sb, CT_INTC.SRSR0 & ( 1 << (16+10) ));
+          msgpck_write_integer_u32(&sb, CT_INTC.SRSR0 & ( 1 << (16+8) ));
         } else {
           msgpck_write_array_header(&sb, 3);
           msgpck_write_string(&sb, "err", 3);

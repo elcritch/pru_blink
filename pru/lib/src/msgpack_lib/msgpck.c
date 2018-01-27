@@ -59,12 +59,14 @@ int stream_readBytes(Stream * sb, uint8_t * buffer, int length) {
   if (stream_available(sb) < length)
         return -1;
 
-    sb->max_position = length + 1;
 
     uint32_t i;
     for(i=0;i<length;i++){
       buffer[i] = sb->data[sb->pos+i];
     }
+
+    sb->pos = sb->pos + length;
+    sb->max_position = length + 1;
 
     return length;
   }
@@ -528,7 +530,7 @@ void msgpck_write_integer_u8(Stream * s, uint8_t u) {
 
 void msgpck_write_integer_u16(Stream * s, uint16_t u) {
   if(u < 256) {
-    msgpck_write_integer(s, (uint8_t) u);
+    msgpck_write_integer_u8(s, (uint8_t) u);
   } else {
     stream_write(s, 0xcd);
     stream_write(s, u >> 8);
@@ -538,7 +540,7 @@ void msgpck_write_integer_u16(Stream * s, uint16_t u) {
 
 void msgpck_write_integer_u32(Stream * s, uint32_t u) {
   if(u < 65536) {
-    msgpck_write_integer(s, (uint16_t) u);
+    msgpck_write_integer_u16(s, (uint16_t) u);
   } else {
     stream_write(s, 0xce);
     stream_write(s, u >> 24);
@@ -550,7 +552,7 @@ void msgpck_write_integer_u32(Stream * s, uint32_t u) {
 
 void msgpck_write_integer_u64(Stream * s, uint64_t u) {
   if(u < 4294967296) {
-    msgpck_write_integer(s, (uint32_t) u);
+    msgpck_write_integer_u32(s, (uint32_t) u);
   } else {
     stream_write(s, 0xcd);
     stream_write(s, u >> 56);
@@ -579,7 +581,7 @@ void msgpck_write_integer_i16(Stream * s, int16_t i) {
       stream_write(s, i >> 8);
       stream_write(s, i & 0xff);
     } else {
-      msgpck_write_integer(s, (int8_t) i);
+      msgpck_write_integer_i8(s, (int8_t) i);
     }
 }
 
@@ -591,7 +593,7 @@ void msgpck_write_integer_i32(Stream * s, int32_t i) {
       stream_write(s, (i >> 8)& 0xff);
       stream_write(s, i & 0xff);
     } else {
-      msgpck_write_integer(s, (int16_t) i);
+      msgpck_write_integer_i16(s, (int16_t) i);
     }
 }
 
@@ -607,7 +609,7 @@ void msgpck_write_integer_i64(Stream * s, int64_t i) {
       stream_write(s, i >> 8);
       stream_write(s, i & 0xff);
     } else {
-      msgpck_write_integer(s, (int32_t) i);
+      msgpck_write_integer_i32(s, (int32_t) i);
     }
 }
 

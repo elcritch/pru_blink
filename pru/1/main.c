@@ -74,6 +74,7 @@ volatile register uint32_t __R31;
 
 uint8_t payload[RPMSG_BUF_SIZE];
 uint8_t buf[128];
+char cmd[16];
 
 /*
  * main.c
@@ -97,9 +98,12 @@ void main(void)
 	/* Initialize the RPMsg transport structure */
 	pru_rpmsg_init(&transport, &resourceTable.rpmsg_vring0, &resourceTable.rpmsg_vring1, TO_ARM_HOST, FROM_ARM_HOST);
 
+  Stream rx;
+  Stream sb;
 
 	/* Create the RPMsg channel between the PRU and ARM user space using the transport structure. */
 	while (pru_rpmsg_channel(RPMSG_NS_CREATE, &transport, CHAN_NAME, CHAN_DESC, CHAN_PORT) != PRU_RPMSG_SUCCESS);
+
 	while (1) {
 		/* Check bit 30 of register R31 to see if the ARM has kicked us */
 		if (__R31 & HOST_INT) {
@@ -108,15 +112,29 @@ void main(void)
 			/* Receive all available messages, multiple messages can be sent per kick */
 			while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) == PRU_RPMSG_SUCCESS) {
 				/* Echo the message back to the same address from which we just received */
-        Stream sb;
+        stream_setup(&rx, payload, len);
         stream_setup(&sb, buf, 128);
 
-        msgpck_write_array_header(&sb, 2);
+        uint32_t arrsz, speed;
+        if (msgpck_read_array_size(&rx, &arrsz) && arrsz == 2
+            //msgpck_read_string(&rx, cmd, sizeof(cmd)) &&
+            //msgpck_read_integer(&rx, &speed, 4) &&
+            //strcmp("set\0", cmd, sizeof(cmd))
+        ) {
+          msgpck_read_string(&rx, cmd, 16);
+          msgpck_read_integer(&rx, &speed, 4);
 
-        msgpck_write_string(&sb, "echo", 4);
-        msgpck_write_string(&sb, (char *)payload, len);
+          msgpck_write_array_header(&sb, 2);
+          msgpck_write_string(&sb, cmd, 3);
+          msgpck_write_integer_u32(&sb, speed);
+        } else {
+          msgpck_write_array_header(&sb, 3);
+          msgpck_write_string(&sb, "err", 3);
+          msgpck_write_string(&sb, (char *)payload, len);
+          msgpck_write_integer_u32(&sb, arrsz);
+        }
 
-				pru_rpmsg_send(&transport, dst, src, sb.data, sb.max_position);
+				pru_rpmsg_send(&transport, dst, src, sb.data, sb.pos);
 			}
 		}
 	}

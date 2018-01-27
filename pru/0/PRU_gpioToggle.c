@@ -34,13 +34,30 @@
 #include <stdint.h>
 #include <pru_cfg.h>
 #include "resource_table_empty.h"
+#include <pru_intc.h>
 
 volatile register uint32_t __R30;
 volatile register uint32_t __R31;
 
+#define HOST_INT			((uint32_t) 1 << 31)	
+
+/* PRU-to-ARM interrupt */
+#define PRU_SCRATCHPAD_1 10
+
+#define PRU1_PRU0_INTR_SET (18+16)
+#define PRU1_PRU0_INTR_CLR (18)
+
+typedef struct {
+	uint32_t speed;
+} settingsData;
+
+
 void main(void)
 {
 	volatile uint32_t gpio;
+	settingsData settings;
+  settings.speed = 1;
+  uint32_t i = 0;
 
 	/* Clear SYSCFG[STANDBY_INIT] to enable OCP master port */
 	CT_CFG.SYSCFG_bit.STANDBY_INIT = 0;
@@ -56,6 +73,18 @@ void main(void)
 	/* TODO: Create stop condition, else it will toggle indefinitely */
 	while (1) {
 		__R30 ^= gpio;
-		__delay_cycles(10000000);
+
+    for (i = settings.speed + 1; i > 0; --i) {
+      __delay_cycles(10000000);
+    }
+
+    /* if ((__R31 & (1<<30)) == 0) { */
+      /* XFR registers R5-R10 from PRU0 to PRU1 */
+      /* 14 is the device_id that signifies a PRU to PRU transfer */
+      __xin(PRU_SCRATCHPAD_1, 1, 0, settings);
+
+      /* Clear the status of the interrupt */
+      /* CT_INTC.SICR = PRU1_PRU0_INTR_CLR; */
+    /* } */
 	}
 }

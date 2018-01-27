@@ -50,7 +50,7 @@ volatile register uint32_t __R31;
  * PRU0 uses system event 16 (To ARM) and 17 (From ARM)
  * PRU1 uses system event 18 (To ARM) and 19 (From ARM)
  */
-#define TO_ARM_HOST			18	
+#define TO_ARM_HOST			18
 #define FROM_ARM_HOST			19
 
 /*
@@ -76,6 +76,16 @@ uint8_t payload[RPMSG_BUF_SIZE];
 uint8_t buf[128];
 char cmd[16];
 
+/* PRU-to-ARM interrupt */
+#define PRU_SCRATCHPAD_1 10
+
+#define PRU1_PRU0_INTR_SET (18+16)
+#define PRU1_PRU0_INTR_CLR (18)
+
+typedef struct {
+	uint32_t speed;
+} settingsData;
+
 /*
  * main.c
  */
@@ -84,6 +94,9 @@ void main(void)
 	struct pru_rpmsg_transport transport;
 	uint16_t src, dst, len;
 	volatile uint8_t *status;
+
+	settingsData settings;
+  settings.speed = 1;
 
 	/* Allow OCP master port access by the PRU so the PRU can read external memories */
 	CT_CFG.SYSCFG_bit.STANDBY_INIT = 0;
@@ -121,9 +134,13 @@ void main(void)
             msgpck_read_integer(&rx, &speed, 4) &&
             strcmp("set", cmd, sizeof(cmd)) == 0
         ) {
-          /* msgpck_read_string(&rx, cmd, 16); */
-          /* msgpck_read_integer(&rx, &speed, 4); */
+          /* Update settings */
+          settings.speed = speed;
+          __xout(PRU_SCRATCHPAD_1, 1, 0, settings); // 1 cycle op
+          /* Let PRU0 know that settings are updated*/
+          /* __R31 = PRU1_PRU0_INTR_SET; */
 
+          /* Send OK back to port driver */
           msgpck_write_array_header(&sb, 3);
           msgpck_write_string(&sb, "ok", 2);
           msgpck_write_string(&sb, cmd, 3);

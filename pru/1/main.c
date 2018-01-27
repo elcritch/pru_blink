@@ -116,15 +116,16 @@ void main(void)
         stream_setup(&sb, buf, 128);
 
         uint32_t arrsz, speed;
-        if (msgpck_read_array_size(&rx, &arrsz) && arrsz == 2
-            //msgpck_read_string(&rx, cmd, sizeof(cmd)) &&
-            //msgpck_read_integer(&rx, &speed, 4) &&
-            //strcmp("set\0", cmd, sizeof(cmd))
+        if (msgpck_read_array_size(&rx, &arrsz) && arrsz == 2 &&
+            msgpck_read_string(&rx, cmd, sizeof(cmd)) &&
+            msgpck_read_integer(&rx, &speed, 4) &&
+            strcmp("set", cmd, sizeof(cmd)) == 0
         ) {
-          msgpck_read_string(&rx, cmd, 16);
-          msgpck_read_integer(&rx, &speed, 4);
+          /* msgpck_read_string(&rx, cmd, 16); */
+          /* msgpck_read_integer(&rx, &speed, 4); */
 
-          msgpck_write_array_header(&sb, 2);
+          msgpck_write_array_header(&sb, 3);
+          msgpck_write_string(&sb, "ok", 2);
           msgpck_write_string(&sb, cmd, 3);
           msgpck_write_integer_u32(&sb, speed);
         } else {

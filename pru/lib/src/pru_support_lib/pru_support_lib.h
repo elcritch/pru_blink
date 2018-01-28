@@ -38,4 +38,28 @@
 #define HOST_INT_2			((uint32_t) 1 << 30)
 #define HOST_INT_1			((uint32_t) 1 << 31)
 
+#define LOW  false
+#define HIGH true
+
+#define GPIO(NUMBER) (1 << NUMBER)
+
+#ifndef PRU_SUPPORT_OVERRIDE_R30
+volatile register uint32_t __R30;
+#end
+
+#ifndef PRU_SUPPORT_OVERRIDE_R31
+volatile register uint32_t __R31;
+#end
+
+inline void digitalWrite(uint32_t gpio_bitmask, bool state) {
+  if (state == LOW)
+    __R30 &= !gpio_bitmask;
+  else
+    __R30 |= gpio_bitmask;
+}
+
+inline bool digitalRead(uint32_t gpio_bitmask) {
+  return (__R31 & gpio_bitmask) > 0;
+}
+
 #endif

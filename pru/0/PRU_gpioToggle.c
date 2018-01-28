@@ -39,8 +39,6 @@
 
 #include "../common.h"
 
-volatile register uint32_t __R30;
-volatile register uint32_t __R31;
 
 #define HOST_INT			((uint32_t) 1 << 31)	
 #define PRU_SHAREDMEM 0x00012000
@@ -76,6 +74,5 @@ void main(void)
         CT_INTC.SECR0 = (1 << (16 + 9));
       }
     }
-
 	}
 }

@@ -38,8 +38,8 @@
 #define HOST_INT_2			((uint32_t) 1 << 30)
 #define HOST_INT_1			((uint32_t) 1 << 31)
 
-#define LOW  false
-#define HIGH true
+#define LOW  ((uint32_t)0x00000000)
+#define HIGH ((uint32_t)0xFFFFFFFF)
 
 #define GPIO(NUMBER) (1 << NUMBER)
 
@@ -51,11 +51,9 @@ volatile register uint32_t __R30;
 volatile register uint32_t __R31;
 #end
 
+// seems to be 3-4 cycles (15 - 20 ns then)
 inline void digitalWrite(uint32_t gpio_bitmask, bool state) {
-  if (state == LOW)
-    __R30 &= !gpio_bitmask;
-  else
-    __R30 |= gpio_bitmask;
+  __R30 ^= gpio_bitmask & ( __R30 ^ state);
 }
 
 inline bool digitalRead(uint32_t gpio_bitmask) {

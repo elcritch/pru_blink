@@ -25,6 +25,9 @@ Can only be used on the BeagleBone boards.
 Install and make note of the location, we will need that. Export that
 location to the PRU_CGT environment variable.~~
 
+Note, WIP to auto-download TI's code generation tools as a Nerves artifact. This currently partially works, see `make_env:` option `mix.exs` for how this could/will work. 
+
+
 ### Compile the Nerves app
 ```
 export MIX_TARGET=bbb  # Exports environment variable

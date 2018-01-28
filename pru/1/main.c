@@ -43,11 +43,11 @@
 #include <msgpck.h>
 #include <pru_support_lib.h>
 
+#include "../common.h"
+
 volatile register uint32_t __R31;
 
 /* Host-1 Interrupt sets bit 31 in register R31 */
-#define HOST_INT			((uint32_t) 1 << 31)	
-#define PRU_SHAREDMEM 0x00012000
 
 /* The PRU-ICSS system events used for RPMsg are defined in the Linux device tree
  * PRU0 uses system event 16 (To ARM) and 17 (From ARM)
@@ -55,7 +55,6 @@ volatile register uint32_t __R31;
  */
 #define TO_ARM_HOST			18
 #define FROM_ARM_HOST			19
-
 #define PRU1_PRU0_INTERRUPT (16)
 
 /*
@@ -81,12 +80,6 @@ uint8_t payload[RPMSG_BUF_SIZE];
 uint8_t buf[128];
 char cmd[16];
 
-/* PRU-to-ARM interrupt */
-
-typedef struct {
-	uint32_t speed;
-} SettingsData;
-
 TX_SCRATCHPAD_FUNC(settings, PAD_ONE, SettingsData);
 
 /*
@@ -94,7 +87,7 @@ TX_SCRATCHPAD_FUNC(settings, PAD_ONE, SettingsData);
  */
 void main(void)
 {
-  volatile int* shared_mem = (volatile int *) PRU_SHAREDMEM;
+  __SHARED_MEMORY__(SharedStruct, shared_mem);
 	struct pru_rpmsg_transport transport;
 	uint16_t src, dst, len;
 	volatile uint8_t *status;
@@ -123,9 +116,10 @@ void main(void)
 
 	while (1) {
 		/* Check bit 30 of register R31 to see if the ARM has kicked us */
-		if (__R31 & HOST_INT) {
+		if (__R31 & HOST_INT_1) {
 			/* Clear the event status */
 			CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
+
 			/* Receive all available messages, multiple messages can be sent per kick */
 			while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) == PRU_RPMSG_SUCCESS) {
 				/* Echo the message back to the same address from which we just received */

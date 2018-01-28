@@ -32,7 +32,7 @@ LINKER_COMMAND_FILE=./AM335x_PRU.cmd
 
 #------------------------------------
 #LIBS=--library=../../../lib/rpmsg_lib.lib
-LIBS=--library=../lib/rpmsg_lib.lib --library=../lib/msgpack_lib.lib --library=../lib/pru_support_lib.lib 
+LIBS=--library=../lib/rpmsg_lib.lib --library=../lib/msgpack_lib.lib 
 #INCLUDE=--include_path=../../../include --include_path=../../../include/am335x
 INCLUDE=--include_path=../include --include_path=../include/am335x 
 #------------------------------------

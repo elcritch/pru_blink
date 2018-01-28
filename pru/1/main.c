@@ -33,6 +33,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <pru_cfg.h>
 #include <pru_intc.h>
 #include <rsc_types.h>
@@ -40,11 +41,13 @@
 #include "resource_table_1.h"
 
 #include <msgpck.h>
+#include <pru_support_lib.h>
 
 volatile register uint32_t __R31;
 
 /* Host-1 Interrupt sets bit 31 in register R31 */
 #define HOST_INT			((uint32_t) 1 << 31)	
+#define PRU_SHAREDMEM 0x00012000
 
 /* The PRU-ICSS system events used for RPMsg are defined in the Linux device tree
  * PRU0 uses system event 16 (To ARM) and 17 (From ARM)
@@ -79,31 +82,24 @@ uint8_t buf[128];
 char cmd[16];
 
 /* PRU-to-ARM interrupt */
-#define PRU_SCRATCHPAD_1 10
 
 typedef struct {
 	uint32_t speed;
-} settingsData;
+} SettingsData;
 
-#define SCR_PAD_1 10
-#define SCR_PAD_2 11
-void tx_scratch_pad(settingsData data) {
-  // implicit struct settingsData as first arguement
-  // second argument become 'data'
-  // argument registers are R14-R29
-  __xout(SCR_PAD_1, 14, 0, data);
-}
+TX_SCRATCHPAD_FUNC(settings, PAD_ONE, SettingsData);
 
 /*
  * main.c
  */
 void main(void)
 {
+  volatile int* shared_mem = (volatile int *) PRU_SHAREDMEM;
 	struct pru_rpmsg_transport transport;
 	uint16_t src, dst, len;
 	volatile uint8_t *status;
 
-	settingsData settings;
+	SettingsData settings;
   settings.speed = 1;
 
 	/* Allow OCP master port access by the PRU so the PRU can read external memories */
@@ -134,48 +130,54 @@ void main(void)
 			while (pru_rpmsg_receive(&transport, &src, &dst, payload, &len) == PRU_RPMSG_SUCCESS) {
 				/* Echo the message back to the same address from which we just received */
         stream_setup(&rx, payload, len);
-        stream_setup(&sb, buf, 128);
 
         uint32_t arrsz, speed;
         if (msgpck_read_array_size(&rx, &arrsz) && arrsz == 2 &&
             msgpck_read_string(&rx, cmd, sizeof(cmd)) &&
-            msgpck_read_integer(&rx, &speed, 4) 
+            msgpck_read_integer(&rx, (byte*)&speed, 4)
         ) {
           /* Update settings */
           settings.speed = speed;
-          /* __xout(PRU_SCRATCHPAD_1, 5, 0, settings); // 1 cycle op */
-          /* Let PRU0 know that settings are updated*/
-          /* __R31 = PRU1_PRU0_INTR_SET; */
-          if (strcmp("set31", cmd, sizeof(cmd)) == 0) {
+          if (strncmp("set31", cmd, sizeof(cmd)) == 0) {
+
             settings.speed = speed;
-            tx_scratch_pad(settings);
+            tx_scratchpad_settings(settings);
+
+            SettingsData * main_settings = (SettingsData*)(shared_mem);
+            *main_settings = settings;
+
             __R31 = (1<<5) | 9;
-          } else if (strcmp("secr0", cmd, sizeof(cmd)) == 0) {
+          } else if (strncmp("secr0", cmd, sizeof(cmd)) == 0) {
             CT_INTC.SECR0 = (1 << (16 + 9));
-          } else if (strcmp("secr1", cmd, sizeof(cmd)) == 0) {
+          } else if (strncmp("secr1", cmd, sizeof(cmd)) == 0) {
             CT_INTC.SECR1 = (1 << speed);
           }
 
-          // Pru.Port.write(pid, Msgpax.pack!(["secr0", 16+9 ]) |> IO.iodata_to_binary )
-          // Pru.Port.write(pid, Msgpax.pack!(["set31", (1<<<5) ||| 9 ]) |> IO.iodata_to_binary )
-
-          /* Send OK back to port driver */
-          msgpck_write_array_header(&sb, 7);
+          /* Send data back to port driver */
+          stream_setup(&sb, buf, 128);
+          msgpck_write_array_header(&sb, 2);
           msgpck_write_string(&sb, "ok", 2);
           msgpck_write_string(&sb, cmd, 5);
+          pru_rpmsg_send(&transport, dst, src, sb.data, sb.pos);
+
+          stream_setup(&sb, buf, 128);
+          msgpck_write_array_header(&sb, 6);
+          msgpck_write_string(&sb, "data", 4);
           msgpck_write_integer_u32(&sb, __R31);
           msgpck_write_integer_u32(&sb, CT_INTC.SRSR0);
           msgpck_write_integer_u32(&sb, CT_INTC.SRSR0 & ( 1 << (16+9) ));
           msgpck_write_integer_u32(&sb, CT_INTC.SRSR0 & ( 1 << (16+10) ));
           msgpck_write_integer_u32(&sb, CT_INTC.SRSR0 & ( 1 << (16+8) ));
+          pru_rpmsg_send(&transport, dst, src, sb.data, sb.pos);
+
         } else {
           msgpck_write_array_header(&sb, 3);
           msgpck_write_string(&sb, "err", 3);
           msgpck_write_string(&sb, (char *)payload, len);
           msgpck_write_integer_u32(&sb, arrsz);
+          pru_rpmsg_send(&transport, dst, src, sb.data, sb.pos);
         }
 
-				pru_rpmsg_send(&transport, dst, src, sb.data, sb.pos);
 			}
 		}
 	}

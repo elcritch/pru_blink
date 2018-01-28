@@ -35,11 +35,13 @@
 #include <pru_cfg.h>
 #include "resource_table_empty.h"
 #include <pru_intc.h>
+#include <pru_support_lib.h>
 
 volatile register uint32_t __R30;
 volatile register uint32_t __R31;
 
 #define HOST_INT			((uint32_t) 1 << 31)	
+#define PRU_SHAREDMEM 0x00012000
 
 /* PRU-to-ARM interrupt */
 #define PRU_SCRATCHPAD_1 10
@@ -48,23 +50,16 @@ volatile register uint32_t __R31;
 
 typedef struct {
 	uint32_t speed;
-} settingsData;
+} SettingsData;
 
-#define SCR_PAD_1 10
-#define SCR_PAD_2 11
-settingsData rx_scratch_pad() {
-  // implicit struct settingsData as first arguement -- allocadated by callee
-  // argument registers are R14-R29
-  settingsData data;
-
-  __xin(SCR_PAD_1, 14, 0, data);
-  return data;
-}
+RX_SCRATCHPAD_FUNC(settings, PAD_ONE, SettingsData);
 
 void main(void)
 {
+  volatile int* shared_mem = (volatile int *) PRU_SHAREDMEM;
 	volatile uint32_t gpio;
-	settingsData settings;
+
+	SettingsData settings;
   settings.speed = 1;
   uint32_t i = 0;
 
@@ -94,9 +89,10 @@ void main(void)
       /* __xin(PRU_SCRATCHPAD_1, 5, 0, settings); */
 
       /* Clear the status of the interrupt */
-      /* settings.speed += 2; */
-      settingsData input = rx_scratch_pad();
-      settings = input;
+      /* SettingsData input = rx_scratchpad_settings(); */
+      /* settings = input; */
+
+      settings = *((SettingsData*)(shared_mem));
 
       CT_INTC.SECR0 = (1 << (16 + 9));
     }

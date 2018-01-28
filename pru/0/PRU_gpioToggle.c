@@ -58,7 +58,7 @@ void main(void)
 	uint32_t gpio = 0x834F;
   uint32_t i = 0;
 
-	SettingsData settings = { 1 };
+	SettingsData settings = { 8000 };
 
 	/* Clear SYSCFG[STANDBY_INIT] to enable OCP master port */
 	CT_CFG.SYSCFG_bit.STANDBY_INIT = 0;
@@ -68,13 +68,14 @@ void main(void)
 		__R30 ^= gpio;
 
     for (i = settings.speed; i > 0; --i) {
-      __delay_cycles(10000000);
+      __delay_cycles(1000);
+
+      if (CT_INTC.SRSR0 & (1 << (16+9)) ) {
+        settings = shared_mem->settings;
+
+        CT_INTC.SECR0 = (1 << (16 + 9));
+      }
     }
 
-    if (CT_INTC.SRSR0 & (1 << (16+9)) ) {
-      settings = shared_mem->settings;
-
-      CT_INTC.SECR0 = (1 << (16 + 9));
-    }
 	}
 }

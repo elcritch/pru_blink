@@ -70,10 +70,10 @@ defmodule PruBlink.Mixfile do
   def deps("host"), do: []
   def deps(target) do
     [
-      {:bootloader, "~> 0.1"},
+      # {:bootloader, "~> 0.1"},
       {:nerves_runtime, "~> 0.5"},
       {:nerves_network, "~> 0.3"},
-      {:nerves_init_gadget, "~> 0.2"},
+      # {:nerves_init_gadget, "~> 0.2"},
       {:nerves_network_interface, "~> 0.4"},
       {:nerves_firmware_ssh, "~> 0.2"},
       {:nerves_pru_icss, "~> 0.1", git: "https://github.com/elcritch/nerves_pru_icss.git", branch: "master"},

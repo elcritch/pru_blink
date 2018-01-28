@@ -50,6 +50,16 @@ typedef struct {
 	uint32_t speed;
 } settingsData;
 
+#define SCR_PAD_1 10
+#define SCR_PAD_2 11
+settingsData rx_scratch_pad() {
+  // implicit struct settingsData as first arguement -- allocadated by callee
+  // argument registers are R14-R29
+  settingsData data;
+
+  __xin(SCR_PAD_1, 14, 0, data);
+  return data;
+}
 
 void main(void)
 {
@@ -84,9 +94,10 @@ void main(void)
       /* __xin(PRU_SCRATCHPAD_1, 5, 0, settings); */
 
       /* Clear the status of the interrupt */
-      settings.speed += 2;
-      /* CT_INTC.SICR = PRU1_PRU0_INTERRUPT; */
-      /* CT_INTC.SICR_bit.STS_CLR_IDX = PRU1_PRU0_INTERRUPT; */
+      /* settings.speed += 2; */
+      settingsData input = rx_scratch_pad();
+      settings = input;
+
       CT_INTC.SECR0 = (1 << (16 + 9));
     }
 	}

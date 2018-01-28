@@ -64,9 +64,9 @@ volatile register uint32_t __R31;
  */
 //#define CHAN_NAME			"rpmsg-client-sample"
 #define CHAN_NAME			"rpmsg-pru"
-
 #define CHAN_DESC			"Channel 31"
 #define CHAN_PORT			31
+
 
 /*
  * Used to make sure the Linux drivers are ready for RPMsg communication
@@ -84,6 +84,15 @@ char cmd[16];
 typedef struct {
 	uint32_t speed;
 } settingsData;
+
+#define SCR_PAD_1 10
+#define SCR_PAD_2 11
+void tx_scratch_pad(settingsData data) {
+  // implicit struct settingsData as first arguement
+  // second argument become 'data'
+  // argument registers are R14-R29
+  __xout(SCR_PAD_1, 14, 0, data);
+}
 
 /*
  * main.c
@@ -139,6 +148,7 @@ void main(void)
           /* __R31 = PRU1_PRU0_INTR_SET; */
           if (strcmp("set31", cmd, sizeof(cmd)) == 0) {
             settings.speed = speed;
+            tx_scratch_pad(settings);
             __R31 = (1<<5) | 9;
           } else if (strcmp("secr0", cmd, sizeof(cmd)) == 0) {
             CT_INTC.SECR0 = (1 << (16 + 9));
@@ -147,7 +157,7 @@ void main(void)
           }
 
           // Pru.Port.write(pid, Msgpax.pack!(["secr0", 16+9 ]) |> IO.iodata_to_binary )
-          // Pru.Port.write(pid, Msgpax.pack!(["set31", (1<<<5) ||| 9 ]) |> IO.iodata_to_binary ) 
+          // Pru.Port.write(pid, Msgpax.pack!(["set31", (1<<<5) ||| 9 ]) |> IO.iodata_to_binary )
 
           /* Send OK back to port driver */
           msgpck_write_array_header(&sb, 7);

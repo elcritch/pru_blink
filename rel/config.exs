@@ -28,7 +28,7 @@ end
 
 release :pru_blink do
   set version: current_version(:pru_blink)
-  plugin Bootloader
+  # plugin Bootloader
   if System.get_env("NERVES_SYSTEM") do
     set dev_mode: false
     set include_src: false

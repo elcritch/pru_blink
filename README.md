@@ -1,4 +1,4 @@
-# PruBlink
+# PruExample (for Nerves!)
 
 ## Updates [WIP]
 

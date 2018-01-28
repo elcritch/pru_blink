@@ -57,3 +57,4 @@ Insert SD Card into BeagleBone and boot. The first boot after burning the firmwa
   * Official website: http://www.nerves-project.org/
   * Discussion Slack elixir-lang #nerves ([Invite](https://elixir-slackin.herokuapp.com/))
   * Source: https://github.com/nerves-project/nerves
+  * [TI C/C++ Compiler Manual](http://www.ti.com/lit/ug/spruhv7b/spruhv7b.pdf)

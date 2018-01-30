@@ -1,5 +1,7 @@
 %{
   "distillery": {:hex, :distillery, "1.5.2", "eec18b2d37b55b0bcb670cf2bcf64228ed38ce8b046bb30a9b636a6f5a4c0080", [:mix], [], "hexpm"},
   "elixir_make": {:hex, :elixir_make, "0.4.0", "992f38fabe705bb45821a728f20914c554b276838433349d4f2341f7a687cddf", [:mix], [], "hexpm"},
+  "msgpax": {:hex, :msgpax, "2.1.0", "6ca513821f4654e0e6762a673b60b4c9a81fd8a0db7f7618a8b06bfdc1f1fbdd", [:mix], [{:plug, "~> 1.0", [hex: :plug, repo: "hexpm", optional: true]}], "hexpm"},
   "nerves": {:git, "https://github.com/elcritch/nerves.git", "07b42f5508e9358812f945a97cdb349affdd1fac", [branch: "master"]},
+  "pru": {:git, "https://github.com/elcritch/pru.git", "c5f58c90e8fe7ebf90d199adba2a1f73fb5812be", [branch: "master"]},
 }

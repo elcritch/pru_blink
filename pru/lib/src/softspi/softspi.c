@@ -1,4 +1,4 @@
-#include "software_spi.h"
+#include "softspi.h"
 
 
 static inline void delayCycles(int cycles)

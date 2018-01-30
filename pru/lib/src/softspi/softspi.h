@@ -1,6 +1,7 @@
 /*******************************************
 * Author: Qingfeng Xia  @ iesensor.com
 * BSD 3 claused Licensed  2013
+* Modified: Jaremy Creechley, Pronghorn Technolgies, 2018
 *********************************************/
 
 
@@ -21,17 +22,13 @@
 uint8_t spi_transfer(uint8_t b) ;
 void spi_setup();
 
-#if  defined(__AVR_ATmega2560__)
-  //for example 8cycles as one SPI period, for Arduino mega2560 16MHz, SPI 2MHz,  tested passed for AD7730!
-  //for DUE 84MHz,  need longer nop cycles to keep waveform!  -> multiply each delay by 6 
-  #define DELAY_CYCLES  2     //more precise than micro second delay,  1/4 of SPI bus frequency , depends on MCU master clock, 
-  #define DELAY_CYCLES_P0  1  //propogation pre
-  #define DELAY_CYCLES_P1  3  //propogation post
-  #define DELAY_CYCLES_C0 1   //capture pre (SCK edge -> capture) usually smaller delay
-  #define DELAY_CYCLES_C1 3   //capture post ( capture -> SCK edge)  usually bigger delay 
-#else
-  #error "checking your board and MCU main frequency and set prooper delay for software_SPI bit-banging"
-#endif
+//for example 8cycles as one SPI period, for Arduino mega2560 16MHz, SPI 2MHz,  tested passed for AD7730!
+//for DUE 84MHz,  need longer nop cycles to keep waveform!  -> multiply each delay by 6 
+#define DELAY_CYCLES  2     //more precise than micro second delay,  1/4 of SPI bus frequency , depends on MCU master clock, 
+#define DELAY_CYCLES_P0  1  //propogation pre
+#define DELAY_CYCLES_P1  3  //propogation post
+#define DELAY_CYCLES_C0 1   //capture pre (SCK edge -> capture) usually smaller delay
+#define DELAY_CYCLES_C1 3   //capture post ( capture -> SCK edge)  usually bigger delay 
 
   /*
   The timing diagram is shown to the right. The timing is further described below and applies to both the master and the slave device.

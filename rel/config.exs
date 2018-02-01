@@ -26,8 +26,8 @@ end
 # when running `mix release`, the first release in the file
 # will be used by default
 
-release :pru_blink do
-  set version: current_version(:pru_blink)
+release :pru_example do
+  set version: current_version(:pru_example)
   # plugin Bootloader
   if System.get_env("NERVES_SYSTEM") do
     set dev_mode: false

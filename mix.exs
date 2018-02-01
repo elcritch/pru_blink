@@ -14,12 +14,11 @@ defmodule PruBlink.Mixfile do
      version: "0.1.0",
      elixir: "~> 1.4",
      compilers: [:elixir_make | Mix.compilers],
-     #make_env: %{ "PRU_CGT" => "\${NERVES_SYSTEM}/extras/ti-cgt-pru/"},
      # hack -- need support in nerves package 
-     make_env: %{
-       "PRU_CGT" => System.user_home() <> "/.nerves/artifacts/nerves_pru_icss-portable-0.1.0/ti-cgt-pru/",
-       "PRU_LIB" => "",
-     },
+     # make_env: %{
+     #   "PRU_CGT" => System.user_home() <> "/.nerves/artifacts/nerves_pru_icss-portable-0.1.0/ti-cgt-pru/",
+     #   "PRU_LIB" => "",
+     # },
      target: @target,
      archives: [nerves_bootstrap: "~> 0.6"],
      deps_path: "deps/#{@target}",

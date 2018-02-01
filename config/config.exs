@@ -14,7 +14,7 @@ config :logger, level: :debug
 #   rootfs_overlay: "rootfs_overlay",
 #   fwup_conf: "config/fwup.conf"
 
-config :pru_blink, interface: :eth0
+config :pru_example, interface: :eth0
 #config :hello_network, interface: :wlan0
 #config :hello_network, interface: :usb0
 
@@ -39,7 +39,7 @@ config :nerves_firmware_ssh,
 
 config :bootloader,
   init: [:nerves_runtime, :nerves_network, :nerves_init_gadget],
-  app: :pru_blink
+  app: :pru_example
 
 config :nerves, :firmware,
   rootfs_overlay: "rootfs_overlay"

@@ -2,7 +2,7 @@
 
 ## Updates [WIP]
 
-This is a fork from nuclearcanary's `pru_blink` example but has been extensively modifed. The PRU C example now includes a second example showcasing async communication between Elixir and PRU1. RPmsg and an updated [pru](https://github.com/elcritch/pru) library are used to provide this async messaging support. 
+This is a fork from nuclearcanary's `pru_example` example but has been extensively modifed. The PRU C example now includes a second example showcasing async communication between Elixir and PRU1. RPmsg and an updated [pru](https://github.com/elcritch/pru) library are used to provide this async messaging support. 
 
 Furthermore the examples also include examples of using the PRU scratchpad's from C/C++ and the pru shared ram (12kb). Neither of these examples were clear from the TI source, so a helper header has been made under `pru/lib/src/pru_support_lib/pru_support_lib.h` which includes various helpers for using both. The eventual goals are to transform the helper header into a full support library mimicking the Arduino coding environment as far feasible. 
 
@@ -43,7 +43,7 @@ The `Makefile` in the root called the `Makefile` in `/pru/0`. The way `/pru/0/Ma
 
 ### Wire the BeagleBone
 
-![breadboard view](https://github.com/nuclearcanary/pru_blink/raw/master/assets/breadboard_view.png)
+![breadboard view](https://github.com/nuclearcanary/pru_example/raw/master/assets/breadboard_view.png)
 
 Insert SD Card into BeagleBone and boot. The first boot after burning the firmware takes about 30 seconds to start blinking the LED. Thereafter it will take about 70 seconds.
 

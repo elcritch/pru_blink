@@ -25,35 +25,25 @@ endef
 $(error $(ERROR_BODY))
 endif
 
+#------------------------------------
+# Define Project Paths
+#---------------------------------
 MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 CURRENT_DIR := $(notdir $(patsubst %/,%,$(dir $(MKFILE_PATH))))
 PROJ_NAME=$(CURRENT_DIR)
 LINKER_COMMAND_FILE=./AM335x_PRU.cmd
 
 #------------------------------------
-#LIBS=--library=../../../lib/rpmsg_lib.lib
-LIBS=--library=../lib/rpmsg_lib.lib
-#INCLUDE=--include_path=../../../include --include_path=../../../include/am335x
-INCLUDE=--include_path=../include --include_path=../include/am335x
-#------------------------------------
-STACK_SIZE=0x100
-HEAP_SIZE=0x100
-GEN_DIR=gen
-
-#------------------------------------
-CUR_DIR := $(notdir $(CURDIR) )
-#------------------------------------
-
-#Common compiler and linker flags (Defined in 'PRU Optimizing C/C++ Compiler User's Guide)
-CFLAGS=-v3 -O2 --display_error_number --endian=little --hardware_mac=on --obj_directory=$(GEN_DIR) --pp_directory=$(GEN_DIR) -ppd -ppa
-#Linker flags (Defined in 'PRU Optimizing C/C++ Compiler User's Guide)
-LFLAGS=--reread_libs --warn_sections --stack_size=$(STACK_SIZE) --heap_size=$(HEAP_SIZE)
-
-TARGET=$(GEN_DIR)/$(PROJ_NAME).out
+# Define Target
 #---------------------------------
+CUR_DIR := $(notdir $(CURDIR) )
+TARGET=$(GEN_DIR)/$(PROJ_NAME).out
 TARGET_FW=../../rootfs_overlay/lib/firmware/am335x-pru$(CUR_DIR)-fw
 #---------------------------------
 
+#---------------------------------
+# Define Source
+#---------------------------------
 MAP=$(GEN_DIR)/$(PROJ_NAME).map
 SOURCES=$(wildcard *.c)
 #Using .object instead of .obj in order to not conflict with the CCS build process
@@ -81,7 +71,7 @@ $(TARGET): $(OBJECTS) $(LINKER_COMMAND_FILE)
 	@echo ''
 	@echo 'Building target: $@'
 	@echo 'Invoking: PRU Linker'
-	$(PRU_CGT)/bin/clpru $(CFLAGS) -z -i$(PRU_CGT)/lib -i$(PRU_CGT)/include $(LFLAGS) -o $(TARGET) $(OBJECTS) -m$(MAP) $(LINKER_COMMAND_FILE) --library=libc.a $(LIBS)
+	$(PRU_CGT)/bin/clpru $(CFLAGS) -z $(SYS_INCLUDE) $(LFLAGS) -o $(TARGET) $(OBJECTS) -m$(MAP) $(LINKER_COMMAND_FILE) --library=libc.a $(LIBS)
 	@cp $(TARGET) $(TARGET_FW)
 	@echo 'Finished building target: $@'
 
@@ -91,7 +81,7 @@ $(GEN_DIR)/%.object: %.c
 	@echo ''
 	@echo 'Building file: $<'
 	@echo 'Invoking: PRU Compiler'
-	$(PRU_CGT)/bin/clpru --include_path=$(PRU_CGT)/include $(INCLUDE) $(CFLAGS) -fe $@ $<
+	$(PRU_CGT)/bin/clpru $(SYS_INCLUDE) $(INCLUDE) $(CFLAGS) -fe $@ $<
 
 .PHONY: all clean
 

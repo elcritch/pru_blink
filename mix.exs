@@ -15,7 +15,7 @@ defmodule PruBlink.Mixfile do
      elixir: "~> 1.4",
      compilers: [:elixir_make | Mix.compilers],
      make_clean: ["clean"],
-     make_env: %{ "PRU_CGT" => System.user_home() <> "/.nerves/artifacts/extras_toolchain_pru_cgt-portable-0.1.0/ti-cgt-pru/"},
+     # make_env: %{ "PRU_CGT" => System.user_home() <> "/.nerves/artifacts/extras_toolchain_pru_cgt-portable-0.1.0/ti-cgt-pru/"},
      target: @target,
      archives: [nerves_bootstrap: "~> 0.6"],
      deps_path: "deps/#{@target}",
@@ -62,7 +62,7 @@ defmodule PruBlink.Mixfile do
      {:elixir_ale, "~> 1.0"},
      # {:pru, "~> 0.1.0"},
      # {:pru, "~> 0.2.0", path: "../pru/"},
-     {:extras_toolchain_pru_cgt, "~> 0.1", git: "https://github.com/elcritch/extras_toolchain_pru_cgt.git", branch: "v0.1.x"},
+     # {:toolchain_extras_pru_cgt, "~> 0.2", git: "https://github.com/elcritch/extras_toolchain_pru_cgt.git", branch: "v0.2.x"},
      {:nerves_pru_support, git: "https://github.com/elcritch/nerves_pru_support.git", branch: "master"},
     ] ++ deps(@target)
   end

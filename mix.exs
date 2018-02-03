@@ -56,7 +56,7 @@ defmodule PruBlink.Mixfile do
      # {:pru, "~> 0.1.0"},
      # {:pru, "~> 0.2.0", path: "../pru/"},
 
-     # {:nerves_pru_support, git: "https://github.com/elcritch/nerves_pru_support.git", branch: "master"},
+     {:nerves_pru_support, git: "https://github.com/elcritch/nerves_pru_support.git", branch: "master"},
     ] ++ deps(@target)
   end
 

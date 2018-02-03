@@ -48,7 +48,7 @@ MAP=$(GEN_DIR)/$(PROJ_NAME).map
 SOURCES=$(wildcard *.c)
 #Using .object instead of .obj in order to not conflict with the CCS build process
 OBJECTS=$(patsubst %,$(GEN_DIR)/%,$(SOURCES:.c=.object))
-LIBS += --library=$(PRU_LIB)/msgpack.lib
+LIBS += --library=$(PRU_LIB)/pru/msgpack.lib
 
 all: printStart $(TARGET) printEnd
 

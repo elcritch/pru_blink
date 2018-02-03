@@ -93,12 +93,6 @@ defmodule PruBlink.Mixfile do
        github: "elcritch/nerves_system_bbb", branch: "manual-add-ti-cgt-pru", runtime: false}
     ]
 
-  def system("bbb_custom") do
-    [{:nerves_system_bbb, path: "../nerves_system_bbb", runtime: false}]
-    # {:nerves_system_bbb_pru,
-    # branch: "master", git: "https://github.com/elcritch/nerves_system_bbb.git", runtime: false}
-  end
-
   def system("linkit"), do: Mix.raise("Sorry, this example only works on BeagleBone Black/Green")
   def system("ev3"), do: Mix.raise("Sorry, this example only works on BeagleBone Black/Green")
 
@@ -111,9 +105,6 @@ defmodule PruBlink.Mixfile do
   def aliases("host"), do: []
 
   def aliases(_target) do
-    # ["deps.precompile": ["nerves.precompile", "deps.precompile"],
-    #  "deps.loadpaths":  ["deps.loadpaths", "nerves.loadpaths"]]
-    []
-    |> Nerves.Bootstrap.add_aliases()
+    [] |> Nerves.Bootstrap.add_aliases()
   end
 end

@@ -1,8 +1,7 @@
 SUBDIRS = pru/0 pru/1
 
 #------------------------------------
-export PRU_LIB=$(shell mix nerves.path.dep nerves_pru_support | tail -n 1)/priv/pru/
-#export PRU_CGT=$(shell mix nerves.path.artifact nerves_pru_icss | tail -n1)/ti-cgt-pru
+export PRU_LIB=/priv/pru/
 
 export GEN_DIR=gen
 #------------------------------------

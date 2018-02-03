@@ -80,24 +80,7 @@ defmodule PruBlink.Mixfile do
     ] ++ system(target)
   end
 
-  def system("rpi"), do: Mix.raise("Sorry, this example only works on BeagleBone Black/Green")
-  def system("rpi0"), do: Mix.raise("Sorry, this example only works on BeagleBone Black/Green")
-  def system("rpi2"), do: Mix.raise("Sorry, this example only works on BeagleBone Black/Green")
-  def system("rpi3"), do: Mix.raise("Sorry, this example only works on BeagleBone Black/Green")
   def system("bbb"), do: [{:nerves_system_bbb, "~> 0.20.0", runtime: false}]
-
-  def system("bbb_pru"),
-    do: [
-      {:nerves_system_bbb, "~> 0.20.0",
-       github: "elcritch/nerves_system_bbb", branch: "manual-add-ti-cgt-pru", runtime: false}
-    ]
-
-  def system("linkit"), do: Mix.raise("Sorry, this example only works on BeagleBone Black/Green")
-  def system("ev3"), do: Mix.raise("Sorry, this example only works on BeagleBone Black/Green")
-
-  def system("qemu_arm"),
-    do: Mix.raise("Sorry, this example only works on BeagleBone Black/Green")
-
   def system(target), do: Mix.raise("Unknown MIX_TARGET: #{target}")
 
   # We do not invoke the Nerves Env when running on the Host

@@ -59,8 +59,9 @@ defmodule PruBlink.Mixfile do
 
       # Toolchain Extras for PRU CGT Compiler, set $PRU_CGT
       {:toolchain_extras_pru_cgt, "~> 0.2",
-       git: "https://github.com/elcritch/extras_toolchain_pru_cgt.git",
+       github: "elcritch/extras_toolchain_pru_cgt",
        branch: "v0.2.x-host_tools_fork"},
+
       # PRU Library support, sets $PRU_LIB 
       {:nerves_pru_support,
        git: "https://github.com/elcritch/nerves_pru_support.git", branch: "master"}
@@ -72,10 +73,8 @@ defmodule PruBlink.Mixfile do
 
   def deps(target) do
     [
-      # {:bootloader, "~> 0.1"},
       {:nerves_runtime, "~> 0.5"},
       {:nerves_network, "~> 0.3"},
-      # {:nerves_init_gadget, "~> 0.2"},
       {:nerves_network_interface, "~> 0.4"},
       {:nerves_firmware_ssh, "~> 0.2"}
     ] ++ system(target)

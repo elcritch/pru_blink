@@ -21,8 +21,8 @@ export HEAP_SIZE=0x100
 all: $(SUBDIRS)
 
 $(SUBDIRS):
+	@echo PRU_CGT: $(PRU_CGT)
 	@echo PRU_LIB: $(PRU_LIB)
-	@ls $(PRU_LIB)
 	$(MAKE) -C $@
 
 clean:

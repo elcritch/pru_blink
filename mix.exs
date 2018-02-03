@@ -44,26 +44,19 @@ defmodule PruBlink.Mixfile do
      extra_applications: [:logger]]
   end
 
-  # Dependencies can be Hex packages:
-  #
-  #   {:my_dep, "~> 0.3.0"}
-  #
-  # Or git/path repositories:
-  #
-  #   {:my_dep, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
-  #
-  # Type "mix help deps" for more examples and options
   def deps do
     [
-     # {:nerves, "~> 0.9.0", runtime: false},
-     {:nerves, git: "https://github.com/elcritch/nerves.git", branch: "master", override: true },
+     {:toolchain_extras_pru_cgt, "~> 0.2", git: "https://github.com/elcritch/extras_toolchain_pru_cgt.git", branch: "v0.2.x-host_tools_fork"},
+     # {:nerves, git: "https://github.com/nerves-project/nerves.git", branch: "host_tools", override: true },
+     {:nerves, git: "https://github.com/elcritch/nerves.git", branch: "host_tools_fork", override: true },
      {:elixir_make, "~> 0.3"},
      {:msgpax, "~> 2.1"},
      {:elixir_ale, "~> 1.0"},
+
      # {:pru, "~> 0.1.0"},
      # {:pru, "~> 0.2.0", path: "../pru/"},
-     # {:toolchain_extras_pru_cgt, "~> 0.2", git: "https://github.com/elcritch/extras_toolchain_pru_cgt.git", branch: "v0.2.x"},
-     {:nerves_pru_support, git: "https://github.com/elcritch/nerves_pru_support.git", branch: "master"},
+
+     # {:nerves_pru_support, git: "https://github.com/elcritch/nerves_pru_support.git", branch: "master"},
     ] ++ deps(@target)
   end
 

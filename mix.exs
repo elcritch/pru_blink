@@ -20,6 +20,7 @@ defmodule PruBlink.Mixfile do
       elixir: "~> 1.4",
       compilers: [:elixir_make | Mix.compilers()],
       make_clean: ["clean"],
+      # Previous method: hardcode path
       # make_env: %{ "PRU_CGT" => System.user_home() <> "/.nerves/artifacts/extras_toolchain_pru_cgt-portable-0.1.0/ti-cgt-pru/"},
       target: @target,
       archives: [nerves_bootstrap: "~> 0.6"],
@@ -33,15 +34,8 @@ defmodule PruBlink.Mixfile do
     ]
   end
 
-  # Configuration for the OTP application.
-  #
-  # Type `mix help compile.app` for more information.
   def application, do: application(@target)
 
-  # Specify target specific application configurations
-  # It is common that the application start function will start and supervise
-  # applications which could cause the host to fail. Because of this, we only
-  # invoke PruBlink.start/2 when running on a target.
   def application("host") do
     [extra_applications: [:logger]]
   end

@@ -58,7 +58,7 @@ defmodule PruBlink.Mixfile do
       # Toolchain Extras for PRU CGT Compiler, set $PRU_CGT
       {:toolchain_extras_pru_cgt, "~> 0.2",
        github: "elcritch/extras_toolchain_pru_cgt",
-       branch: "v0.2.x-host_tools_fork"},
+       branch: "master"},
 
       # PRU Library support, sets $PRU_LIB 
       {:nerves_pru_support,

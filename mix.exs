@@ -52,7 +52,11 @@ defmodule PruBlink.Mixfile do
 
   def deps do
     [
+      # Provides default `toolchain_extras` platform
+      #    placing it in a nerves branch, otherwise the dependency build order gets tricky
+      #    and I don't know how to force the deps.compile order
       {:nerves, github: "elcritch/nerves", branch: "host_tools_fork", override: true},
+
       {:elixir_make, "~> 0.3"},
       {:msgpax, "~> 2.1"},
       {:elixir_ale, "~> 1.0"},

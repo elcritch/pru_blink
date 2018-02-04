@@ -36,9 +36,9 @@
 #include "resource_table_empty.h"
 #include <pru_intc.h>
 #include <pru_support_lib.h>
+#include <pru_support_pins.h>
 
 #include "../common.h"
-
 
 #define HOST_INT			((uint32_t) 1 << 31)	
 #define PRU_SHAREDMEM 0x00012000
@@ -47,13 +47,15 @@
 #define PRU_SCRATCHPAD_1 10
 
 #define PRU1_PRU0_INTERRUPT (16)
+#define BB_BLACK
 
 RX_SCRATCHPAD_FUNC(settings, PAD_ONE, SettingsData);
 
 void main(void)
 {
   __SHARED_MEMORY__(SharedStruct, shared_mem);
-	uint32_t gpio = 0x834F;
+	/* uint32_t gpio = 0x834F; */
+	uint32_t gpio_15 = 1 << 15;
   uint32_t i = 0;
 
 	SettingsData settings = { 8000 };
@@ -62,8 +64,13 @@ void main(void)
 	CT_CFG.SYSCFG_bit.STANDBY_INIT = 0;
 	CT_INTC.SICR_bit.STS_CLR_IDX = PRU1_PRU0_INTERRUPT;
 
+  bool state = true;
 	while (1) {
-		__R30 ^= gpio;
+		/* __R30 ^= gpio; */
+    /* __R30 ^= gpio_15 & ( __R30 ^ (state ? HIGH : LOW)); */
+
+    digitalWrite(PRU0_GO_P8_11, state ? HIGH : LOW);
+    state = !state;
 
     for (i = settings.speed; i > 0; --i) {
       __delay_cycles(1000);

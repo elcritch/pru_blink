@@ -10,7 +10,7 @@ export LFLAGS=--reread_libs --warn_sections --stack_size=$(STACK_SIZE) --heap_si
 #------------------------------------
 export LIBS=--library=$(PRU_LIB)/pru/rpmsg.lib
 export SYS_INCLUDE=-i$(PRU_CGT)/lib -i$(PRU_CGT)/include
-export INCLUDE=--include_path=$(PRU_LIB)/pru/include --include_path=$(PRU_LIB)/pru/include/am335x
+export INCLUDE=--include_path=$(PRU_LIB)/pru/include --include_path=$(PRU_LIB)/pru/include --include_path=$(PRU_LIB)/pru/include/am335x
 #------------------------------------
 export STACK_SIZE=0x100
 export HEAP_SIZE=0x100

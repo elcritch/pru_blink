@@ -59,8 +59,8 @@ struct my_resource_table {
 	uint32_t offset[1]; /* Should match 'num' in actual definition */
 };
 
-#pragma DATA_SECTION(pru_remoteproc_ResourceTable, ".resource_table")
-#pragma RETAIN(pru_remoteproc_ResourceTable)
+#pragma DATA_SECTION( ".resource_table")
+#pragma RETAIN
 struct my_resource_table pru_remoteproc_ResourceTable = {
 	1,	/* we're the first version that implements this */
 	0,	/* number of entries in the table */

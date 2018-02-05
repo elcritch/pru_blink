@@ -45,9 +45,9 @@ TARGET_FW=../../rootfs_overlay/lib/firmware/am335x-pru$(CUR_DIR)-fw
 # Define Source
 #---------------------------------
 MAP=$(GEN_DIR)/$(PROJ_NAME).map
-SOURCES=$(wildcard *.c)
+SOURCES=$(wildcard *.cpp)
 #Using .object instead of .obj in order to not conflict with the CCS build process
-OBJECTS=$(patsubst %,$(GEN_DIR)/%,$(SOURCES:.c=.object))
+OBJECTS=$(patsubst %,$(GEN_DIR)/%,$(SOURCES:.cpp=.object))
 
 all: printStart $(TARGET) printEnd
 
@@ -76,7 +76,7 @@ $(TARGET): $(OBJECTS) $(LINKER_COMMAND_FILE)
 	@echo 'Finished building target: $@'
 
 # Invokes the compiler on all c files in the directory to create the object files
-$(GEN_DIR)/%.object: %.c
+$(GEN_DIR)/%.object: %.cpp
 	@mkdir -p $(GEN_DIR)
 	@echo ''
 	@echo 'Building file: $<'

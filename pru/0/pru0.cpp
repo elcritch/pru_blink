@@ -38,6 +38,7 @@
 #include <pru_support_lib.h>
 #include <pru_support_pins.h>
 
+
 #include "../common.h"
 
 #define HOST_INT			((uint32_t) 1 << 31)
@@ -48,18 +49,33 @@
 
 #define PRU1_PRU0_INTERRUPT (16)
 #define BB_BLACK
+#define NOOP __delay_cycles(1000);
+
+#define BLINK_EXAMPLE
 
 RX_SCRATCHPAD_FUNC(settings, PAD_ONE, SettingsData);
 
+
+#ifdef SPI_EXAMPLE
+
+#include <softspi.hpp>
+using namespace SoftSPI;
+
 void spiExample() {
   // Setup SPI Master - Mode 0
-  IOPins pins = { .miso = , .mosi = 11, .sck = 14 };
+  IOPins pins = { .miso = 10, .mosi = 11, .sck = 14 };
   ClockTimings timings = ClockTimings::with_sck_cycle_and_pre_delays(10, 0, 0);
   uint8_t out;
 
-  SpiMaster<uint8_t, Polarity::Std, PollEdge::Rising, MsbFirst, SpiClockToggler> spi0(pins, timings);
+  SpiMaster<uint8_t, Std, Rising, MsbFirst, SpiClockToggler> spi(pins, timings);
 
+  spi.transfer(12, 0xAA);
 }
+#endif
+
+#ifdef BLINK_EXAMPLE
+
+#include <string.h>
 
 void blinkExample() {
   __SHARED_MEMORY__(SharedStruct, shared_mem);
@@ -81,13 +97,16 @@ void blinkExample() {
       __delay_cycles(1000);
 
       if (CT_INTC.SRSR0 & (1 << (16+9)) ) {
-        settings = shared_mem->settings;
+        // C++ a& Volatile don't seem to mix well -\_(`.`)_/-
+        memcpy(&settings, (SettingsData*) &shared_mem->settings, sizeof (SettingsData));
+        // settings = rx_scratchpad_settings();
 
         CT_INTC.SECR0 = (1 << (16 + 9));
       }
     }
 	}
 }
+#endif
 
 void main(void)
 {
@@ -96,6 +115,12 @@ void main(void)
 	CT_INTC.SICR_bit.STS_CLR_IDX = PRU1_PRU0_INTERRUPT;
 
 
+#ifdef BLINK_EXAMPLE
   blinkExample();
-  /* spiExample(); */
+#endif
+
+#ifdef SPI_EXAMPLE
+  spiExample();
+#endif
 }
+

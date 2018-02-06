@@ -133,7 +133,6 @@ void main(void)
             msgpck_read_integer(&rx, (byte*)&speed, 4)
         ) {
           /* Update settings */
-          settings.speed = speed;
           if (strncmp("set31", cmd, sizeof(cmd)) == 0) {
 
             settings.speed = speed;
@@ -143,6 +142,10 @@ void main(void)
             *main_settings = settings;
 
             __R31 = (1<<5) | 9;
+          } else if (strncmp("spi_x", cmd, sizeof(cmd)) == 0) {
+            settings.byte = speed;
+            SettingsData * main_settings = (SettingsData*)(shared_mem);
+            *main_settings = settings;
           } else if (strncmp("secr0", cmd, sizeof(cmd)) == 0) {
             CT_INTC.SECR0 = (1 << (16 + 9));
           } else if (strncmp("secr1", cmd, sizeof(cmd)) == 0) {
@@ -156,14 +159,18 @@ void main(void)
           msgpck_write_string(&sb, cmd, 5);
           pru_rpmsg_send(&transport, dst, src, sb.data, sb.pos);
 
+          SettingsData * main_settings = (SettingsData*)(shared_mem);
+          settings = *main_settings;
+
           stream_setup(&sb, buf, 128);
           msgpck_write_array_header(&sb, 6);
           msgpck_write_string(&sb, "data", 4);
           msgpck_write_integer_u32(&sb, __R31);
           msgpck_write_integer_u32(&sb, CT_INTC.SRSR0);
-          msgpck_write_integer_u32(&sb, CT_INTC.SRSR0 & ( 1 << (16+9) ));
-          msgpck_write_integer_u32(&sb, CT_INTC.SRSR0 & ( 1 << (16+10) ));
-          msgpck_write_integer_u32(&sb, CT_INTC.SRSR0 & ( 1 << (16+8) ));
+          msgpck_write_integer_u32(&sb, settings.speed);
+          msgpck_write_integer_u32(&sb, settings.result);
+          msgpck_write_integer_u8(&sb, settings.byte);
+
           pru_rpmsg_send(&transport, dst, src, sb.data, sb.pos);
 
         } else {

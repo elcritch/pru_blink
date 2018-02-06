@@ -59,6 +59,7 @@ printStart:
 	@echo ''
 	@echo '************************************************************'
 	@echo 'Building project: $(PROJ_NAME)'
+	@rm -rf $(GEN_DIR)
 
 printEnd:
 	@echo ''
@@ -76,6 +77,8 @@ $(TARGET): $(OBJECTS) $(LINKER_COMMAND_FILE)
 	@echo 'Building target: $@'
 	@echo 'Invoking: PRU Linker'
 	$(PRU_CGT)/bin/clpru $(CFLAGS) -z $(SYS_INCLUDE) $(LFLAGS) -o $(TARGET) $(OBJECTS) -m$(MAP) $(LINKER_COMMAND_FILE) --library=libc.a $(LIBS)
+	@echo Target: $(TARGET)
+	$(PRU_CGT)/bin/dispru $(TARGET) > $(TARGET).s
 	@cp $(TARGET) $(TARGET_FW)
 	@echo 'Finished building target: $@'
 
@@ -86,6 +89,7 @@ $(GEN_DIR)/%.object: %.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: PRU Compiler'
 	$(PRU_CGT)/bin/clpru $(SYS_INCLUDE) $(INCLUDE) $(CFLAGS) -fe $@ $<
+	$(PRU_CGT)/bin/dispru $@ > $(GEN_DIR)/$<.s
 
 .PHONY: all clean
 

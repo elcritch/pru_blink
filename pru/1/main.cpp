@@ -50,8 +50,8 @@
 #define PRU1_PRU0_INTERRUPT (16)
 #define BB_BLACK
 
-#define BLINK_EXAMPLE
-// #define SPI_EXAMPLE
+// #define BLINK_EXAMPLE
+#define SPI_EXAMPLE
 
 RX_SCRATCHPAD_FUNC(settings, PAD_ONE, SettingsData);
 
@@ -66,12 +66,15 @@ void blinkExample() {
 
 	SettingsData settings = { 8000 };
 
+  digitalWrite(PRU1_GI_P8_28, HIGH);
+
   bool state = true;
 	while (1) {
 		/* __R30 ^= gpio; */
     /* __R30 ^= gpio_15 & ( __R30 ^ (state ? HIGH : LOW)); */
 
     digitalWrite(PRU1_GI_P8_27, state ? HIGH : LOW);
+    digitalToggle(PRU1_GI_P8_28);
     state = !state;
 
     uint32_t i = 0;
@@ -93,8 +96,10 @@ void blinkExample() {
 #ifdef SPI_EXAMPLE
 
 #define NOOP __delay_cycles(1000);
+// #define NOOP __delay_cycles(10000);
 
 #include <softspi.hpp>
+#include <string.h>
 using namespace SoftSPI;
 
 /*
@@ -133,17 +138,54 @@ using namespace SoftSPI;
  */
 // ClockTimings timings = ClockTimings::with_sck_cycle_and_pre_delays(10, 0, 0);
 typedef ClockTimings<33,16,0,16,0> Timings;
-const IOPins pins = { .miso = PRU1_GI_P8_45, .mosi = PRU1_GI_P8_43, .sck = PRU1_GI_P8_41 };
+const IOPins pins = { .miso = PRU1_GI_P8_45, .mosi = PRU1_GI_P8_43, .sck = PRU1_GI_P8_44 };
 const Pin spi_dev_1 = PRU1_GI_P8_39;
 
 void spiExample() {
+  __SHARED_MEMORY__(SharedStruct, shared_mem);
   // Setup SPI Master - Mode 0
-  uint8_t out;
 
-  SpiMaster<uint8_t, Std, Rising, MsbFirst, SpiClockToggler, Timings> spi(pins);
+  SpiMaster<uint8_t, Std, Rising, MsbFirst, SpiClock, Timings> spi(pins);
 
-  for (;;) {
-    spi.transfer(spi_dev_1, 0xAA);
+  digitalWrite(PRU1_GI_P8_27, LOW);
+
+	SettingsData settings = { 8000, 0, 0xAA };
+  // int32_t state = 0;
+  bool state = true;
+
+  digitalWrite(PRU1_GI_P8_27, HIGH);
+
+  while (1) {
+
+    digitalWrite(pins.mosi, LOW);
+    digitalWrite(pins.sck, LOW);
+
+    // settings.result_old = settings.result;
+    // settings.result = 0;
+    settings.result = spi.transfer(spi_dev_1, settings.byte);
+
+    // tx
+    memcpy((SettingsData*) &shared_mem->settings, &settings, sizeof (SettingsData));
+
+    // digitalToggle(PRU1_GI_P8_27);
+    digitalWrite(PRU1_GI_P8_27, state ? HIGH : LOW);
+
+    // state = state > settings.speed ? -settings.speed : state + 1;
+    state = !state;
+
+    uint32_t i = 0;
+    for (i = settings.speed; i > 0; --i) {
+      __delay_cycles(1000);
+
+      if (CT_INTC.SRSR0 & (1 << (16+9)) ) {
+        // C++ a& Volatile don't seem to mix well -\_(`.`)_/-
+        // rx
+        memcpy(&settings, (SettingsData*) &shared_mem->settings, sizeof (SettingsData));
+        // settings = rx_scratchpad_settings();
+
+        CT_INTC.SECR0 = (1 << (16 + 9));
+      }
+    }
   }
 }
 #endif

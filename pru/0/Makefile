@@ -56,6 +56,7 @@ printStart:
 	@echo ''
 	@echo '************************************************************'
 	@echo 'Building project: $(PROJ_NAME)'
+	@rm -rf $(GEN_DIR)
 
 printEnd:
 	@echo ''

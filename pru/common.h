@@ -3,6 +3,8 @@
 
 typedef struct {
 	uint32_t speed;
+	uint32_t result;
+	uint8_t byte;
 } SettingsData;
 
 typedef struct {

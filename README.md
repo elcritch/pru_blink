@@ -45,9 +45,9 @@ The `Makefile` in the root called the `Makefile` in `/pru/0`. The way `/pru/0/Ma
 
 ![breadboard view](https://github.com/nuclearcanary/pru_example/raw/master/assets/breadboard_view.png)
 
-
+    PWR  +
       --|+|--|--------|------
-    /   |+|  |        |       \                     P8
+    /   |+|  |  Eth0  |       \                     P8
     |   |_|  |        |       |
     |O__     |________|    __O|        |============|======|=====|===========|
     | [|]   Led Ground-> [*|] |        | DGND       |   1  |  2  | DGND      |   ... row 1
@@ -73,7 +73,7 @@ The `Makefile` in the root called the `Makefile` in `/pru/0`. The way `/pru/0/Ma
     | [|]                 [|] |        | LCD DATA4  |  41  | 42  | LCD DATA5 |   ... row 21
     | [|]                 [|] |        | LCD DATA2  |  43  | 44  | LCD DATA3 |   ... row 22
     | [|] -------         [|] |        | LCD DATA0  |  45  | 46  | LCD DATA1 |   ... row 23
-    \     |     |             /        |============|======|=====|===========|
+    \     | SD  |             /        |============|======|=====|===========|
       ----|     |------------
           -------
 

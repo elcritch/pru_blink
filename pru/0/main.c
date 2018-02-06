@@ -53,8 +53,10 @@ volatile register uint32_t __R31;
  * PRU0 uses system event 16 (To ARM) and 17 (From ARM)
  * PRU1 uses system event 18 (To ARM) and 19 (From ARM)
  */
-#define TO_ARM_HOST			18
-#define FROM_ARM_HOST			19
+/* #define TO_ARM_HOST			18 */
+/* #define FROM_ARM_HOST			19 */
+#define TO_ARM_HOST			16
+#define FROM_ARM_HOST			17
 #define PRU1_PRU0_INTERRUPT (16)
 
 /*
@@ -116,7 +118,7 @@ void main(void)
 
 	while (1) {
 		/* Check bit 30 of register R31 to see if the ARM has kicked us */
-		if (__R31 & HOST_INT_1) {
+		if (__R31 & HOST_INT_2) {
 			/* Clear the event status */
 			CT_INTC.SICR_bit.STS_CLR_IDX = FROM_ARM_HOST;
 

@@ -49,33 +49,11 @@
 
 #define PRU1_PRU0_INTERRUPT (16)
 #define BB_BLACK
-#define NOOP __delay_cycles(1000);
 
 #define BLINK_EXAMPLE
 // #define SPI_EXAMPLE
 
 RX_SCRATCHPAD_FUNC(settings, PAD_ONE, SettingsData);
-
-
-#ifdef SPI_EXAMPLE
-
-#include <softspi.hpp>
-using namespace SoftSPI;
-
-// ClockTimings timings = ClockTimings::with_sck_cycle_and_pre_delays(10, 0, 0);
-typedef ClockTimings<10,5,0,5,0> Timings;
-const IOPins pins = { .miso = PRU1_GI_P8_45, .mosi = PRU1_GI_P8_43, .sck = PRU1_GI_P8_41 };
-const Pin spi_dev_1 = PRU1_GI_P8_39;
-
-void spiExample() {
-  // Setup SPI Master - Mode 0
-  uint8_t out;
-
-  SpiMaster<uint8_t, Std, Rising, MsbFirst, SpiClockToggler, Timings> spi(pins);
-
-  spi.transfer(spi_dev_1, 0xAA);
-}
-#endif
 
 #ifdef BLINK_EXAMPLE
 
@@ -112,6 +90,65 @@ void blinkExample() {
 }
 #endif
 
+#ifdef SPI_EXAMPLE
+
+#define NOOP __delay_cycles(1000);
+
+#include <softspi.hpp>
+using namespace SoftSPI;
+
+/*
+     ~ Power ~
+      --|+|--|--------|------
+    /   |+|  |  Eth0  |       \
+    |   |_|  |        |       |
+    |O__     |________|    __O|
+    | [|]                 [|] |
+    | [|]                 [|] |
+    | [|]                 [|] |
+    | [|]                 [|] |
+    | [|]                 [|] |
+    | [|]                 [|] |
+    | [|]                 [|] |
+    | [|]                 [|] |
+    | [|]     ........    [|] |
+    | [|]     .      .    [|] |
+    | [|]     . TI   .    [|] |
+    | [|]     .      .    [|] |
+    | [|]     ........    [|] |
+    | [|]                 [|] |
+    | [|]                 [|] |
+    | [|]                 [|] |
+    | [|]                 [|] |
+    | [|]                 [|] |
+    | [|]                 [|] |
+    | [|]             [CS1 |] |
+    | [|]             [SCK |] |
+    | [|]             [MOSI|] |
+    | [|] -------     [MISO|] |
+    \     | SD  |             /
+      ----|     |------------
+          -------
+
+ */
+// ClockTimings timings = ClockTimings::with_sck_cycle_and_pre_delays(10, 0, 0);
+typedef ClockTimings<33,16,0,16,0> Timings;
+const IOPins pins = { .miso = PRU1_GI_P8_45, .mosi = PRU1_GI_P8_43, .sck = PRU1_GI_P8_41 };
+const Pin spi_dev_1 = PRU1_GI_P8_39;
+
+void spiExample() {
+  // Setup SPI Master - Mode 0
+  uint8_t out;
+
+  SpiMaster<uint8_t, Std, Rising, MsbFirst, SpiClockToggler, Timings> spi(pins);
+
+  for (;;) {
+    spi.transfer(spi_dev_1, 0xAA);
+  }
+}
+#endif
+
+
 void main(void)
 {
 	/* Clear SYSCFG[STANDBY_INIT] to enable OCP master port */
@@ -119,12 +156,12 @@ void main(void)
 	CT_INTC.SICR_bit.STS_CLR_IDX = PRU1_PRU0_INTERRUPT;
 
 
-#ifdef BLINK_EXAMPLE
-  blinkExample();
-#endif
+  #ifdef BLINK_EXAMPLE
+    blinkExample();
+  #endif
 
-#ifdef SPI_EXAMPLE
-  spiExample();
-#endif
+  #ifdef SPI_EXAMPLE
+    spiExample();
+  #endif
 }
 

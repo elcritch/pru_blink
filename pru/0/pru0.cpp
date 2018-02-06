@@ -51,7 +51,8 @@
 #define BB_BLACK
 #define NOOP __delay_cycles(1000);
 
-#define BLINK_EXAMPLE
+// #define BLINK_EXAMPLE
+#define SPI_EXAMPLE
 
 RX_SCRATCHPAD_FUNC(settings, PAD_ONE, SettingsData);
 
@@ -61,15 +62,18 @@ RX_SCRATCHPAD_FUNC(settings, PAD_ONE, SettingsData);
 #include <softspi.hpp>
 using namespace SoftSPI;
 
+// ClockTimings timings = ClockTimings::with_sck_cycle_and_pre_delays(10, 0, 0);
+typedef ClockTimings<10,5,0,5,0> Timings;
+const IOPins pins = { .miso = PRU1_GI_P8_45, .mosi = PRU1_GI_P8_43, .sck = PRU1_GI_P8_41 };
+const Pin spi_dev_1 = PRU1_GI_P8_39;
+
 void spiExample() {
   // Setup SPI Master - Mode 0
-  IOPins pins = { .miso = 10, .mosi = 11, .sck = 14 };
-  ClockTimings timings = ClockTimings::with_sck_cycle_and_pre_delays(10, 0, 0);
   uint8_t out;
 
-  SpiMaster<uint8_t, Std, Rising, MsbFirst, SpiClockToggler> spi(pins, timings);
+  SpiMaster<uint8_t, Std, Rising, MsbFirst, SpiClockToggler, Timings> spi(pins);
 
-  spi.transfer(12, 0xAA);
+  spi.transfer(spi_dev_1, 0xAA);
 }
 #endif
 

@@ -49,6 +49,10 @@ SOURCES=$(wildcard *.cpp)
 #Using .object instead of .obj in order to not conflict with the CCS build process
 OBJECTS=$(patsubst %,$(GEN_DIR)/%,$(SOURCES:.cpp=.object))
 
+# LFLAGS=--reread_libs --warn_sections --stack_size=$(STACK_SIZE) --heap_size=$(HEAP_SIZE)
+CFLAGS= -O4 -program_level_compile --keep_asm --display_error_number --endian=little --obj_directory=$(GEN_DIR) --pp_directory=$(GEN_DIR) -ppd -ppa
+LFLAGS=
+
 all: printStart $(TARGET) printEnd
 
 printStart:

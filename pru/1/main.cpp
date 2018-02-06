@@ -51,8 +51,8 @@
 #define BB_BLACK
 #define NOOP __delay_cycles(1000);
 
-// #define BLINK_EXAMPLE
-#define SPI_EXAMPLE
+#define BLINK_EXAMPLE
+// #define SPI_EXAMPLE
 
 RX_SCRATCHPAD_FUNC(settings, PAD_ONE, SettingsData);
 
@@ -93,7 +93,7 @@ void blinkExample() {
 		/* __R30 ^= gpio; */
     /* __R30 ^= gpio_15 & ( __R30 ^ (state ? HIGH : LOW)); */
 
-    digitalWrite(PRU0_GO_P8_11, state ? HIGH : LOW);
+    digitalWrite(PRU1_GI_P8_27, state ? HIGH : LOW);
     state = !state;
 
     uint32_t i = 0;

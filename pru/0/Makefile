@@ -45,13 +45,10 @@ TARGET_FW=../../rootfs_overlay/lib/firmware/am335x-pru$(CUR_DIR)-fw
 # Define Source
 #---------------------------------
 MAP=$(GEN_DIR)/$(PROJ_NAME).map
-SOURCES=$(wildcard *.cpp)
+SOURCES=$(wildcard *.c)
 #Using .object instead of .obj in order to not conflict with the CCS build process
-OBJECTS=$(patsubst %,$(GEN_DIR)/%,$(SOURCES:.cpp=.object))
-
-# LFLAGS=--reread_libs --warn_sections --stack_size=$(STACK_SIZE) --heap_size=$(HEAP_SIZE)
-CFLAGS= -O4 -program_level_compile --keep_asm --display_error_number --endian=little --obj_directory=$(GEN_DIR) --pp_directory=$(GEN_DIR) -ppd -ppa
-LFLAGS=
+OBJECTS=$(patsubst %,$(GEN_DIR)/%,$(SOURCES:.c=.object))
+LIBS += --library=$(PRU_LIB)/pru/msgpack.lib
 
 all: printStart $(TARGET) printEnd
 
@@ -80,12 +77,12 @@ $(TARGET): $(OBJECTS) $(LINKER_COMMAND_FILE)
 	@echo 'Finished building target: $@'
 
 # Invokes the compiler on all c files in the directory to create the object files
-$(GEN_DIR)/%.object: %.cpp
+$(GEN_DIR)/%.object: %.c
 	@mkdir -p $(GEN_DIR)
 	@echo ''
 	@echo 'Building file: $<'
 	@echo 'Invoking: PRU Compiler'
-	$(PRU_CGT)/bin/clpru $(SYS_INCLUDE) $(INCLUDE) $(CFLAGS) -fe $@ $<
+	$(PRU_CGT)/bin/clpru $(SYS_INCLUDE) $(LFLAGS) $(INCLUDE) $(CFLAGS) -fe $@ $<
 
 .PHONY: all clean
 

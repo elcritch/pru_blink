@@ -7,7 +7,7 @@ defmodule PruBlink do
     Logger.info("Init pin overlay")
     Pru.init_pins()
     Logger.info("Set P8_11 pin to pruout")
-    Pru.pin_out('P8_11')
+    Pru.pin_out('P8_27')
     {:ok, self()}
   end
 end

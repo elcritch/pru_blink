@@ -143,13 +143,15 @@ const Pin spi_dev_1 = PRU1_GI_P8_39;
 
 void spiExample() {
   __SHARED_MEMORY__(SharedStruct, shared_mem);
+  SharedStruct * main_settings = (SharedStruct*)(shared_mem);
   // Setup SPI Master - Mode 0
 
   SpiMaster<uint8_t, Std, Rising, MsbFirst, SpiClock, Timings> spi(pins);
 
   digitalWrite(PRU1_GI_P8_27, LOW);
 
-	SettingsData settings = { 8000, 0, 0xAA };
+	SettingsData settings = { 8000, 0xAA };
+	SpiData spi_data;
   // int32_t state = 0;
   bool state = true;
 
@@ -162,10 +164,11 @@ void spiExample() {
 
     // settings.result_old = settings.result;
     // settings.result = 0;
-    settings.result = spi.transfer(spi_dev_1, settings.byte);
+    spi_data.result = spi.transfer(spi_dev_1, settings.spi_msg);
 
     // tx
-    memcpy((SettingsData*) &shared_mem->settings, &settings, sizeof (SettingsData));
+    // memcpy((SettingsData*) &shared_mem->settings, &settings, sizeof (SettingsData));
+    main_settings->spi_data = spi_data;
 
     // digitalToggle(PRU1_GI_P8_27);
     digitalWrite(PRU1_GI_P8_27, state ? HIGH : LOW);
@@ -180,7 +183,10 @@ void spiExample() {
       if (CT_INTC.SRSR0 & (1 << (16+9)) ) {
         // C++ a& Volatile don't seem to mix well -\_(`.`)_/-
         // rx
-        memcpy(&settings, (SettingsData*) &shared_mem->settings, sizeof (SettingsData));
+        // memcpy(&settings, (SettingsData*) &shared_mem->settings, sizeof (SettingsData));
+
+        settings = main_settings->settings;
+
         // settings = rx_scratchpad_settings();
 
         CT_INTC.SECR0 = (1 << (16 + 9));

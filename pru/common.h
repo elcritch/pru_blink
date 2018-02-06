@@ -3,12 +3,16 @@
 
 typedef struct {
 	uint32_t speed;
-	uint32_t result;
-	uint8_t byte;
+	uint8_t spi_msg;
 } SettingsData;
 
 typedef struct {
+	uint32_t result;
+} SpiData;
+
+typedef struct {
   SettingsData settings;
+  SpiData spi_data;
 } SharedStruct;
 
 

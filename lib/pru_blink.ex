@@ -4,6 +4,9 @@ defmodule PruBlink do
   require Logger
 
   def start(_type, _args) do
+    result = :os.cmd('rngd -b -W 256 -r /dev/hwrng -o /dev/random -n1 ')
+    Logger.info("Init rngd: #{inspect result}")
+
     Logger.info("Init pin overlay")
     Pru.init_pins()
     Logger.info("Set P8_11 pin to pruout")

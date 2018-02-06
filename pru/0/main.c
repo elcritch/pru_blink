@@ -90,12 +90,17 @@ TX_SCRATCHPAD_FUNC(settings, PAD_ONE, SettingsData);
 void main(void)
 {
   __SHARED_MEMORY__(SharedStruct, shared_mem);
+  SharedStruct * main_settings = (SharedStruct*)(shared_mem);
+
 	struct pru_rpmsg_transport transport;
 	uint16_t src, dst, len;
 	volatile uint8_t *status;
 
 	SettingsData settings;
-  settings.speed = 1;
+	SpiData spi_data;
+
+  settings = main_settings->settings;
+  spi_data = main_settings->spi_data;
 
 	/* Allow OCP master port access by the PRU so the PRU can read external memories */
 	CT_CFG.SYSCFG_bit.STANDBY_INIT = 0;
@@ -127,29 +132,34 @@ void main(void)
 				/* Echo the message back to the same address from which we just received */
         stream_setup(&rx, payload, len);
 
-        uint32_t arrsz, speed;
+        uint32_t arrsz, value;
         if (msgpck_read_array_size(&rx, &arrsz) && arrsz == 2 &&
             msgpck_read_string(&rx, cmd, sizeof(cmd)) &&
-            msgpck_read_integer(&rx, (byte*)&speed, 4)
+            msgpck_read_integer(&rx, (byte*)&value, 4)
         ) {
           /* Update settings */
           if (strncmp("set31", cmd, sizeof(cmd)) == 0) {
 
-            settings.speed = speed;
+            settings.speed = value;
             tx_scratchpad_settings(settings);
 
-            SettingsData * main_settings = (SettingsData*)(shared_mem);
-            *main_settings = settings;
+            (*main_settings).settings = settings;
 
+            // kick other PRU
             __R31 = (1<<5) | 9;
           } else if (strncmp("spi_x", cmd, sizeof(cmd)) == 0) {
-            settings.byte = speed;
-            SettingsData * main_settings = (SettingsData*)(shared_mem);
-            *main_settings = settings;
+
+            settings.spi_msg = value;
+
+            main_settings->settings = settings;
+
+            // kick other PRU
+            __R31 = (1<<5) | 9;
+
           } else if (strncmp("secr0", cmd, sizeof(cmd)) == 0) {
             CT_INTC.SECR0 = (1 << (16 + 9));
           } else if (strncmp("secr1", cmd, sizeof(cmd)) == 0) {
-            CT_INTC.SECR1 = (1 << speed);
+            CT_INTC.SECR1 = (1 << value);
           }
 
           /* Send data back to port driver */
@@ -159,17 +169,18 @@ void main(void)
           msgpck_write_string(&sb, cmd, 5);
           pru_rpmsg_send(&transport, dst, src, sb.data, sb.pos);
 
-          SettingsData * main_settings = (SettingsData*)(shared_mem);
-          settings = *main_settings;
+          // read shared memory
+          spi_data = main_settings->spi_data;
 
           stream_setup(&sb, buf, 128);
-          msgpck_write_array_header(&sb, 6);
+          msgpck_write_array_header(&sb, 7);
           msgpck_write_string(&sb, "data", 4);
           msgpck_write_integer_u32(&sb, __R31);
           msgpck_write_integer_u32(&sb, CT_INTC.SRSR0);
+          msgpck_write_string(&sb, "s,m,res", 7);
           msgpck_write_integer_u32(&sb, settings.speed);
-          msgpck_write_integer_u32(&sb, settings.result);
-          msgpck_write_integer_u8(&sb, settings.byte);
+          msgpck_write_integer_u8(&sb, settings.spi_msg);
+          msgpck_write_integer_u32(&sb, spi_data.result);
 
           pru_rpmsg_send(&transport, dst, src, sb.data, sb.pos);
 

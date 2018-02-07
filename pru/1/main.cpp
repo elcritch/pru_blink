@@ -137,7 +137,16 @@ using namespace SoftSPI;
 
  */
 // ClockTimings timings = ClockTimings::with_sck_cycle_and_pre_delays(10, 0, 0);
-typedef ClockTimings<33,16,0,16,0> Timings;
+
+template <uint32_t cycles>
+struct ClockDelay {
+  void operator()() {
+    __delay_cycles(cycles);
+  }
+};
+
+
+typedef ClockTimings<5,0,16,0,16, ClockDelay> Timings;
 const IOPins pins = { .miso = PRU1_GI_P8_45, .mosi = PRU1_GI_P8_43, .sck = PRU1_GI_P8_44 };
 const Pin spi_dev_1 = PRU1_GI_P8_39;
 
@@ -169,7 +178,6 @@ void spiExample() {
     // tx
     // memcpy((SettingsData*) &shared_mem->settings, &settings, sizeof (SettingsData));
     main_settings->spi_data = spi_data;
-
     // digitalToggle(PRU1_GI_P8_27);
     digitalWrite(PRU1_GI_P8_27, state ? HIGH : LOW);
 
@@ -178,7 +186,8 @@ void spiExample() {
 
     uint32_t i = 0;
     for (i = settings.speed; i > 0; --i) {
-      __delay_cycles(1000);
+      // __delay_cycles(1000);
+      ClockDelay<1000>()();
 
       if (CT_INTC.SRSR0 & (1 << (16+9)) ) {
         // C++ a& Volatile don't seem to mix well -\_(`.`)_/-

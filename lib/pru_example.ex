@@ -1,4 +1,4 @@
-defmodule PruBlink do
+defmodule PruExample do
   use Application
   require Pru
   require Logger

@@ -4,7 +4,7 @@
 ##  The cookie needs to be configured prior to vm boot for
 ##  for read only filesystem.
 
--sname pru_blink
+-sname pru_example
 -setcookie jwpak6E3o9Q70ai/74Qf7yRb6tAZR8Lrhzk0lsqD1ywe2TRYvlR+oBRurVwrr0D1
 
 ## Use Ctrl-C to interrupt the current shell rather than invoking the emulator's

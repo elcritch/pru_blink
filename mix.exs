@@ -61,9 +61,9 @@ defmodule PruBlink.Mixfile do
       {:toolchain_extras_pru_cgt, "~> 2.2.1",
        github: "elcritch/extras_toolchain_pru_cgt",
        branch: "v1.0.0rc",
-       runtime: false},
+       runtime: true},
 
-      # PRU Library support, sets $PRU_LIB 
+      # PRU Library support, sets $PRU_LIB
       {:nerves_pru_support,
        "~> 0.4.1",
        git: "https://github.com/elcritch/nerves_pru_support.git",
@@ -86,6 +86,7 @@ defmodule PruBlink.Mixfile do
   end
 
   def system("bbb"), do: [{:nerves_system_bbb, "~> 1.0.0-rc", runtime: false}]
+  def system("bbb_ti"), do: [{:nerves_system_bbb_ti, "~> 1.0.0-rc", github: "elcritch/nerves_system_bbb_ti", branch: "rcn-sid-linux-4.14.20-ti-rt", runtime: false}]
   def system(target), do: Mix.raise("Unknown MIX_TARGET: #{target}")
 
   # We do not invoke the Nerves Env when running on the Host
@@ -93,7 +94,7 @@ defmodule PruBlink.Mixfile do
 
   def aliases(_target) do
     [loadconfig: [&bootstrap/1]]
-    |> Nerves.Bootstrap.add_aliases()
+    # |> Nerves.Bootstrap.add_aliases()
   end
 
   defp bootstrap(args) do

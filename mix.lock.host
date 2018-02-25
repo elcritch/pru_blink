@@ -1,9 +1,0 @@
-%{
-  "distillery": {:hex, :distillery, "1.5.2", "eec18b2d37b55b0bcb670cf2bcf64228ed38ce8b046bb30a9b636a6f5a4c0080", [:mix], [], "hexpm"},
-  "elixir_ale": {:hex, :elixir_ale, "1.0.2", "f2b7cadf3d1e2adc67201ef4e725e18f3ee5ff37b80ccb7f1bb812f0f765356d", [:make, :mix], [{:elixir_make, "~> 0.4", [hex: :elixir_make, repo: "hexpm", optional: false]}], "hexpm"},
-  "elixir_make": {:hex, :elixir_make, "0.4.0", "992f38fabe705bb45821a728f20914c554b276838433349d4f2341f7a687cddf", [:mix], [], "hexpm"},
-  "msgpax": {:hex, :msgpax, "2.1.1", "833bc9ce6d3e073cf966fec94d3f976ca7100685b4f0efb6e30ef512f2e8a4d7", [:mix], [{:plug, "~> 1.0", [hex: :plug, repo: "hexpm", optional: true]}], "hexpm"},
-  "nerves": {:git, "https://github.com/elcritch/nerves.git", "eb4e663299408d53e1080b60f4acfe99133d4123", [branch: "host_tools_fork"]},
-  "nerves_pru_support": {:git, "https://github.com/elcritch/nerves_pru_support.git", "6af2330294ce0da7c5ee4639f07c69bc9a062259", [branch: "master"]},
-  "toolchain_extras_pru_cgt": {:git, "https://github.com/elcritch/extras_toolchain_pru_cgt.git", "f8c66cd9d506a07c6de4755233a278be954309be", [branch: "master"]},
-}

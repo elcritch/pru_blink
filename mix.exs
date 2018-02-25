@@ -18,7 +18,7 @@ defmodule PruBlink.Mixfile do
       app: :pru_example,
       version: "0.1.0",
       elixir: "~> 1.4",
-      compilers: [:elixir_make | Mix.compilers()],
+      compilers: [:elixir_make, :host_tool] ++ Mix.compilers(),
       make_clean: ["clean"],
       # Previous method: hardcode path
       # make_env: %{ "PRU_CGT" => System.user_home() <> "/.nerves/artifacts/extras_toolchain_pru_cgt-portable-0.1.0/ti-cgt-pru/"},
@@ -30,6 +30,7 @@ defmodule PruBlink.Mixfile do
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       aliases: aliases(@target),
+      # aliases: [loadconfig: [&bootstrap/1]],
       deps: deps()
     ]
   end
@@ -49,20 +50,24 @@ defmodule PruBlink.Mixfile do
       # Provides default `toolchain_extras` platform
       #    placing it in a nerves branch, otherwise the dependency build order gets tricky
       #    and I don't know how to force the deps.compile order
-      {:nerves, github: "elcritch/nerves", branch: "host_tools_fork", override: true},
+      # {:nerves, github: "elcritch/nerves", branch: "host_tools_fork", override: true},
+      {:nerves, "~> 1.0.0-rc"},
 
       {:elixir_make, "~> 0.3"},
       {:msgpax, "~> 2.1"},
       {:elixir_ale, "~> 1.0"},
 
       # Toolchain Extras for PRU CGT Compiler, set $PRU_CGT
-      {:toolchain_extras_pru_cgt, "~> 0.2",
+      {:toolchain_extras_pru_cgt, "~> 0.3",
        github: "elcritch/extras_toolchain_pru_cgt",
-       branch: "master"},
+       branch: "v1.0.0rc"},
 
       # PRU Library support, sets $PRU_LIB 
       {:nerves_pru_support,
-       git: "https://github.com/elcritch/nerves_pru_support.git", branch: "master"}
+       "~> 0.4.0",
+       git: "https://github.com/elcritch/nerves_pru_support.git",
+       branch: "v1.0.0-rc",
+       override: true}
     ] ++ deps(@target)
   end
 
@@ -78,13 +83,19 @@ defmodule PruBlink.Mixfile do
     ] ++ system(target)
   end
 
-  def system("bbb"), do: [{:nerves_system_bbb, "~> 0.20.0", runtime: false}]
+  def system("bbb"), do: [{:nerves_system_bbb, "~> 1.0.0-rc", runtime: false}]
   def system(target), do: Mix.raise("Unknown MIX_TARGET: #{target}")
 
   # We do not invoke the Nerves Env when running on the Host
   def aliases("host"), do: []
 
   def aliases(_target) do
-    [] |> Nerves.Bootstrap.add_aliases()
+    [loadconfig: [&bootstrap/1]]
+    |> Nerves.Bootstrap.add_aliases()
+  end
+
+  defp bootstrap(args) do
+    Application.start(:nerves_bootstrap)
+    Mix.Task.run("loadconfig", args)
   end
 end

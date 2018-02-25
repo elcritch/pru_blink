@@ -18,7 +18,7 @@ defmodule PruBlink.Mixfile do
       app: :pru_example,
       version: "0.1.0",
       elixir: "~> 1.4",
-      compilers: [:elixir_make, :host_tool] ++ Mix.compilers(),
+      compilers: [:elixir_make] ++ Mix.compilers(),
       make_clean: ["clean"],
       # Previous method: hardcode path
       # make_env: %{ "PRU_CGT" => System.user_home() <> "/.nerves/artifacts/extras_toolchain_pru_cgt-portable-0.1.0/ti-cgt-pru/"},

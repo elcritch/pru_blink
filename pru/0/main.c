@@ -135,7 +135,7 @@ void main(void)
         uint32_t arrsz, value;
         if (msgpck_read_array_size(&rx, &arrsz) && arrsz == 2 &&
             msgpck_read_string(&rx, cmd, sizeof(cmd)) &&
-            msgpck_read_integer(&rx, (byte*)&value, 4)
+            msgpck_read_uint(&rx, (byte*)&value, 4)
         ) {
           /* Update settings */
           if (strncmp("set31", cmd, sizeof(cmd)) == 0) {

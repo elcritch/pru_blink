@@ -23,7 +23,7 @@ defmodule PruBlink.Mixfile do
       # Previous method: hardcode path
       # make_env: %{ "PRU_CGT" => System.user_home() <> "/.nerves/artifacts/extras_toolchain_pru_cgt-portable-0.1.0/ti-cgt-pru/"},
       target: @target,
-      archives: [nerves_bootstrap: "~> 0.6"],
+      # archives: [nerves_bootstrap: "~> 0.6"],
       deps_path: "deps/#{@target}",
       build_path: "_build/#{@target}",
       lockfile: "mix.lock.#{@target}",
@@ -58,16 +58,18 @@ defmodule PruBlink.Mixfile do
       {:elixir_ale, "~> 1.0"},
 
       # Toolchain Extras for PRU CGT Compiler, set $PRU_CGT
-      {:toolchain_extras_pru_cgt, "~> 0.3",
+      {:toolchain_extras_pru_cgt, "~> 2.2.1",
        github: "elcritch/extras_toolchain_pru_cgt",
-       branch: "v1.0.0rc"},
+       branch: "v1.0.0rc",
+       runtime: false},
 
       # PRU Library support, sets $PRU_LIB 
       {:nerves_pru_support,
-       "~> 0.4.0",
+       "~> 0.4.1",
        git: "https://github.com/elcritch/nerves_pru_support.git",
        branch: "v1.0.0-rc",
-       override: true}
+       override: true,
+       runtime: true }
     ] ++ deps(@target)
   end
 

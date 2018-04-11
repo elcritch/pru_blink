@@ -17,7 +17,6 @@ defmodule PruExample.Supervisor do
 
   def init(:ok) do
     children = [
-      worker(PruExample.RemoteShell, [], restart: :transient),
       Plug.Adapters.Cowboy.child_spec(:http, PruExample.Router, [], port: 6969),
     ]
 

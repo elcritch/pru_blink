@@ -78,6 +78,7 @@ defmodule PruExample.Mixfile do
       {:shoehorn, "~> 0.2"},
       {:nerves_init_gadget, "~> 0.2"},
       {:ring_logger, "~> 0.4"},
+      {:iex_ssh_shell, "~> 0.1"},
 
       {:adafruit_display, "~> 0.1.0", github: "elcritch/adafruit_display", },
       # {:adafruit_display, "~> 0.1.0", path: "../contracts/adafruit_display/", },

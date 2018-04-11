@@ -1,4 +1,5 @@
 ## Add custom options here
+-c ttyGS0 
 
 ## Distributed Erlang Options
 ##  The cookie needs to be configured prior to vm boot for

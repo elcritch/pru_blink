@@ -73,8 +73,8 @@ void blinkExample() {
 		/* __R30 ^= gpio; */
     /* __R30 ^= gpio_15 & ( __R30 ^ (state ? HIGH : LOW)); */
 
-    digitalWrite(PRU1_GI_P8_27, state ? HIGH : LOW);
-    digitalToggle(PRU1_GI_P8_28);
+    digitalWrite(0xFF, state ? HIGH : LOW);
+    digitalToggle(0xFF);
     state = !state;
 
     uint32_t i = 0;

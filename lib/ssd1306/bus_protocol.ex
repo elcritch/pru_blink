@@ -1,24 +1,24 @@
-defmodule Device.SPI do
+defmodule IOBus.SPI do
   @enforce_keys [:pid, :select_pin]
   defstruct @enforce_keys
 end
 
-defmodule Device.I2C do
+defmodule IOBus.I2C do
   @enforce_keys [:pid, :bus_name]
   defstruct @enforce_keys ++ [:address]
 end
 
-defmodule Device.GPIO do
+defmodule IOBus.GPIO do
   @enforce_keys [:pid, :pin]
   defstruct @enforce_keys
 end
 
-defmodule Device.Test do
+defmodule IOBus.Test do
   @enforce_keys [:name]
   defstruct [:name, :count]
 end
 
-defprotocol Device do
+defprotocol IOBus do
   @doc "read data via a given bus"
   def read(device)
   @doc "write data via a given bus"
@@ -27,7 +27,7 @@ defprotocol Device do
   def xfer(device, value)
 end
 
-defimpl Device, for: Device.GPIO do
+defimpl IOBus, for: IOBus.GPIO do
   alias ElixirALE.GPIO
 
   def read(device), do: GPIO.read(device.pid)
@@ -39,35 +39,35 @@ defimpl Device, for: Device.GPIO do
   end
 end
 
-defimpl Device, for: Device.I2C do
+defimpl IOBus, for: IOBus.I2C do
   alias ElixirALE.I2C
 
-  def read(%Device.I2C{addres: nil} = device), do: I2C.read(device.pid)
-  def read(%Device.I2C{addres: addr} = device), do: I2C.read_device(device.pid, addr)
+  def read(%IOBus.I2C{address: nil} = device), do: I2C.read(device.pid)
+  def read(%IOBus.I2C{address: addr} = device), do: I2C.read_device(device.pid, addr)
 
-  def write(%Device.I2C{addres: nil} = device, val), do: I2C.write(device.pid, val)
-  def write(%Device.I2C{addres: addr} = device, val), do: I2C.write_device(device.pid, addr, val)
+  def write(%IOBus.I2C{address: nil} = device, val), do: I2C.write(device.pid, val)
+  def write(%IOBus.I2C{address: addr} = device, val), do: I2C.write_device(device.pid, addr, val)
 
-  def xfer(%Device.I2C{addres: nil} = device, value) do
+  def xfer(%IOBus.I2C{address: nil} = device, value) do
     I2C.write_read(device.pid)
   end
 
-  def xfer(%Device.I2C{addres: addr} = device, value) do
+  def xfer(%IOBus.I2C{address: addr} = device, value) do
     I2C.write_read_device(device.pid, addr)
   end
 end
 
-defimpl Device, for: Device.SPI do
+defimpl IOBus, for: IOBus.SPI do
   alias ElixirALE.SPI
 
-  def read(%Device.I2C{select_pin: select_pin} = device) do
+  def read(%IOBus.SPI{select_pin: select_pin} = device) do
     GPIO.write(select_pin, 0)
     res = SPI.transfer(device.pid, << 0x0 >>)
     GPIO.write(select_pin, 1)
     res
   end
 
-  def write(%Device.I2C{select_pin: select_pin} = device) do
+  def write(%IOBus.SPI{select_pin: select_pin} = device) do
     GPIO.write(select_pin, 0)
     SPI.transfer(device.pid, device)
     GPIO.write(select_pin, 1)
@@ -75,7 +75,7 @@ defimpl Device, for: Device.SPI do
     :ok
   end
 
-  def xfer(%Device.I2C{addres: addr} = device, value) do
+  def xfer(%IOBus.SPI{select_pin: select_pin} = device, value) do
     GPIO.write(select_pin, 0)
     res = SPI.transfer(device.pid, device)
     GPIO.write(select_pin, 1)
@@ -84,15 +84,15 @@ defimpl Device, for: Device.SPI do
   end
 end
 
-defimpl Device, for: Device.Test do
+defimpl IOBus, for: IOBus.Test do
   def read(device) do
-    IO.puts("Device send: #{inspect device} value: #{inspect value}")
+    IO.puts("IOBus read: #{inspect device} ")
   end
   def write(device, value) do
-    IO.puts("Device send: #{inspect device} value: #{inspect value}")
+    IO.puts("IOBus write: #{inspect device} value: #{inspect value}")
   end
   def xfer(device, value) do
-    IO.puts("Device send: #{inspect device} value: #{inspect value}")
+    IO.puts("IOBus xfer: #{inspect device} value: #{inspect value}")
   end
 end
 

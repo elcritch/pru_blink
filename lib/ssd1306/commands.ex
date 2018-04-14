@@ -179,11 +179,11 @@ defmodule ExScreen.SSD1306.Commands do
   end
 
   def send_command(device, byte) do
-    :ok = Bus.send(device, <<@control_register, byte>>)
+    :ok = IOBus.send(device, <<@control_register, byte>>)
   end
 
   defp send_data(device, <<msb::integer-size(8), lsb::integer-size(8)>>) do
-    Bus.send(device, <<@data_register, msb, lsb>>)
+    IOBus.send(device, <<@data_register, msb, lsb>>)
   end
 
   defp send_buffer(device, <<_::integer-size(8), _::integer-size(8)>> = buffer) do

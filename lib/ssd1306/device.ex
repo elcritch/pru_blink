@@ -32,10 +32,10 @@ defmodule ExScreen.SSD1306.Device do
     )
 
     {:ok, i2c_pid} = I2C.start_link(bus, address)
-    device = %Bus.I2C{pid: i2c_pid, bus_name: bus, address: address}
+    device = %IOBus.I2C{pid: i2c_pid, bus_name: bus, address: address}
 
     {:ok, gpio} = GPIO.start_link(reset, :output)
-    reset = %Bus.GPIO{pid: gpio, pin: reset}
+    reset = %IOBus.GPIO{pid: gpio, pin: reset}
 
     state =
       state

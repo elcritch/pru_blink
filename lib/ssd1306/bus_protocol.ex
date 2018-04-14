@@ -1,41 +1,98 @@
-defmodule Bus.SPI do
+defmodule Device.SPI do
   @enforce_keys [:pid, :select_pin]
   defstruct @enforce_keys
 end
 
-defmodule Bus.I2C do
-  @enforce_keys [:pid, :bus_name, :address]
-  defstruct @enforce_keys
+defmodule Device.I2C do
+  @enforce_keys [:pid, :bus_name]
+  defstruct @enforce_keys ++ [:address]
 end
 
-defmodule Bus.GPIO do
+defmodule Device.GPIO do
   @enforce_keys [:pid, :pin]
   defstruct @enforce_keys
 end
 
-defprotocol Bus.Device do
-  @doc "Sends data via a given bus"
-  def send(device)
+defmodule Device.Test do
+  @enforce_keys [:name]
+  defstruct [:name, :count]
 end
 
-defimpl Bus.Device, for: Bus.GPIO do
+defprotocol Device do
+  @doc "read data via a given bus"
+  def read(device)
+  @doc "write data via a given bus"
+  def write(device, value)
+  @doc "transfer data via a given bus"
+  def xfer(device, value)
+end
+
+defimpl Device, for: Device.GPIO do
   alias ElixirALE.GPIO
 
-  def send(device) do
+  def read(device), do: GPIO.read(device.pid)
+  def write(device, value), do: GPIO.write(device.pid, value)
+  def xfer(device, value) do
+    res = GPIO.read(device.pid)
+    GPIO.write(device.pid)
+    res
   end
 end
 
-defimpl Bus.Device, for: Bus.I2C do
+defimpl Device, for: Device.I2C do
   alias ElixirALE.I2C
 
-  def send(device) do
+  def read(%Device.I2C{addres: nil} = device), do: I2C.read(device.pid)
+  def read(%Device.I2C{addres: addr} = device), do: I2C.read_device(device.pid, addr)
+
+  def write(%Device.I2C{addres: nil} = device, val), do: I2C.write(device.pid, val)
+  def write(%Device.I2C{addres: addr} = device, val), do: I2C.write_device(device.pid, addr, val)
+
+  def xfer(%Device.I2C{addres: nil} = device, value) do
+    I2C.write_read(device.pid)
+  end
+
+  def xfer(%Device.I2C{addres: addr} = device, value) do
+    I2C.write_read_device(device.pid, addr)
   end
 end
 
-defimpl Bus.Device, for: Bus.SPI do
+defimpl Device, for: Device.SPI do
   alias ElixirALE.SPI
 
-  def send(device) do
+  def read(%Device.I2C{select_pin: select_pin} = device) do
+    GPIO.write(select_pin, 0)
+    res = SPI.transfer(device.pid, << 0x0 >>)
+    GPIO.write(select_pin, 1)
+    res
+  end
+
+  def write(%Device.I2C{select_pin: select_pin} = device) do
+    GPIO.write(select_pin, 0)
+    SPI.transfer(device.pid, device)
+    GPIO.write(select_pin, 1)
+
+    :ok
+  end
+
+  def xfer(%Device.I2C{addres: addr} = device, value) do
+    GPIO.write(select_pin, 0)
+    res = SPI.transfer(device.pid, device)
+    GPIO.write(select_pin, 1)
+
+    res
+  end
+end
+
+defimpl Device, for: Device.Test do
+  def read(device) do
+    IO.puts("Device send: #{inspect device} value: #{inspect value}")
+  end
+  def write(device, value) do
+    IO.puts("Device send: #{inspect device} value: #{inspect value}")
+  end
+  def xfer(device, value) do
+    IO.puts("Device send: #{inspect device} value: #{inspect value}")
   end
 end
 

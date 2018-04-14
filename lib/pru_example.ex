@@ -7,13 +7,12 @@ defmodule PruExample.Initializer do
   end
 
   def init(:ok) do
-    Process.send_after self(), :configure, 10_000
+    Process.send_after(self(), :configure, 10_000)
     # GenServer.cast(self(), {:configure})
     {:ok, %{}}
   end
 
   def handle_info(:configure, state) do
-
     Process.sleep(2_000)
 
     Logger.info("Init pin overlay")
@@ -51,15 +50,23 @@ defmodule PruExample.Initializer do
   end
 
   def configure_pins("TI_AM335x_PocketBeagle" = model) do
-    BeaglePru.System.pin('P2_28', :pruout) # PRU0 6
-    BeaglePru.System.pin('P2_30', :pruout) # PRU0 3
-    BeaglePru.System.pin('P2_32', :pruout) # PRU0 2
-    BeaglePru.System.pin('P2_34', :pruout) # PRU0 5
+    # PRU0 6
+    BeaglePru.System.pin('P2_28', :pruout)
+    # PRU0 3
+    BeaglePru.System.pin('P2_30', :pruout)
+    # PRU0 2
+    BeaglePru.System.pin('P2_32', :pruout)
+    # PRU0 5
+    BeaglePru.System.pin('P2_34', :pruout)
 
-    BeaglePru.System.pin('P1_29', :pruout) # PRU0 7
-    BeaglePru.System.pin('P1_31', :pruout) # PRU0 4
-    BeaglePru.System.pin('P1_33', :pruout) # PRU0 1
-    BeaglePru.System.pin('P1_35', :pruout) # PRU1 10
+    # PRU0 7
+    BeaglePru.System.pin('P1_29', :pruout)
+    # PRU0 4
+    BeaglePru.System.pin('P1_31', :pruout)
+    # PRU0 1
+    BeaglePru.System.pin('P1_33', :pruout)
+    # PRU1 10
+    BeaglePru.System.pin('P1_35', :pruout)
   end
 
   def configure_pins(model) do

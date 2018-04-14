@@ -1,5 +1,5 @@
 %{
-  "adafruit_display": {:git, "https://github.com/elcritch/adafruit_display.git", "9ba5c937de4668fd3076b09c4c27df6c561958a1", []},
+  "adafruit_display": {:git, "https://github.com/elcritch/adafruit_display.git", "8857c234a9691cec8c200b29e9f3884eb2989e36", []},
   "beagle_pru_interface": {:git, "https://github.com/elcritch/beagle_pru_interface.git", "a6aa5819b100557d64da298329b2a634000dc71c", []},
   "beagle_pru_support": {:git, "https://github.com/elcritch/beagle_pru_support.git", "14733b17264734356da02fd632f3b71c566b8927", []},
   "cowboy": {:hex, :cowboy, "1.1.2", "61ac29ea970389a88eca5a65601460162d370a70018afe6f949a29dca91f3bb0", [:rebar3], [{:cowlib, "~> 1.0.2", [hex: :cowlib, repo: "hexpm", optional: false]}, {:ranch, "~> 1.3.2", [hex: :ranch, repo: "hexpm", optional: false]}], "hexpm"},

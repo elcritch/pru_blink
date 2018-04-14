@@ -17,7 +17,7 @@ defmodule PruExample.Supervisor do
 
   def init(:ok) do
     children = [
-      Plug.Adapters.Cowboy.child_spec(:http, PruExample.Router, [], port: 6969),
+      Plug.Adapters.Cowboy.child_spec(:http, PruExample.Router, [], port: 6969)
     ]
 
     Supervisor.init(children, strategy: :rest_for_one, max_restarts: 4, max_seconds: 30)
@@ -34,20 +34,18 @@ defmodule PruExample.Router do
     # send_resp(conn, 200, "Welcome")
     conn
     |> put_resp_content_type("text/plain")
-    |> send_resp(200, "#{inspect Node.self}\n")
+    |> send_resp(200, "#{inspect(Node.self())}\n")
   end
 
   get "/logs" do
     conn
     |> put_resp_content_type("text/plain")
-    |> send_resp(200, "#{inspect RingLogger.tail()}\n")
+    |> send_resp(200, "#{inspect(RingLogger.tail())}\n")
   end
 
   get "/inet" do
     conn
     |> put_resp_content_type("text/plain")
-    |> send_resp(200, "#{inspect :inet.gethostname()}\n")
+    |> send_resp(200, "#{inspect(:inet.gethostname())}\n")
   end
-
 end
-

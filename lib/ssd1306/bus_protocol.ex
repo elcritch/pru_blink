@@ -109,32 +109,3 @@ defmodule Helper do
     end
   end
 end
-
-defmodule Evil do
-
-  defmacro variable <~ [key, expr] do
-
-    IO.inspect key, label: :key
-    IO.inspect expr, label: :expr
-
-    key! = insert_path(variable, key)
-
-    quote do
-      var!(unquote(variable)) = Kernel.put_in(unquote(key!), unquote(expr))
-    end
-  end
-
-  def insert_path(pre, {term, meta, []} = _wrapper), do: {insert_path(pre, term), meta, []}
-  def insert_path(pre, {:., meta, args} = _term), do: {:., meta, insert_path(pre, args)}
-
-  def insert_path(pre, [term | rem] = _args),
-    do: [insert_path(pre, term) | insert_path(term, rem)]
-
-  def insert_path(pre, [] = _last_arg), do: []
-  def insert_path(pre, name) when is_atom(name), do: name
-
-  def insert_path(pre, {prev_head, meta, args}) do
-    term = {:., meta, [pre, prev_head]}
-    {term, meta, []}
-  end
-end

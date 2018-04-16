@@ -95,17 +95,3 @@ defimpl IOBus, for: IOBus.Test do
     IO.puts("IOBus xfer: #{inspect device} value: #{inspect value}")
   end
 end
-
-# arg = Application.get_env(:ssd1306, :device, %{bus: "i2c-1", address: 0x3c, reset_pin: 24, commands: []})
-# state = Application.get_env(:ssd1306, :initial_state, {"HELLO", ["", "", "", "", "", ""]})
-
-defmodule Helper do
-
-  defmacro reduce(clause, do: expression) do
-    IO.inspect clause, label: :clause
-    IO.inspect expression, label: :expression
-
-    quote do
-    end
-  end
-end

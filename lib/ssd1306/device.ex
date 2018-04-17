@@ -39,7 +39,8 @@ defmodule ExScreen.SSD1306.Device do
           {:ok, pid} = I2C.start_link(bus, address)
           %IOBus.I2C{pid: pid, bus_name: bus, address: address}
         "spi" <> _rem ->
-          {:ok, pid} = SPI.start_link(bus)
+          spiopts = [mode: 0, speed_hz: 4_000_000  ]
+          {:ok, pid} = SPI.start_link(bus, spiopts)
           %IOBus.SPI{pid: pid, bus_name: bus}
         "test" <> _rem ->
           %IOBus.Test{bus_name: bus}

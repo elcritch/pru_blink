@@ -1,13 +1,7 @@
-defmodule ExScreen.SSD1306.Device.Init do
-  @enforce_keys [:bus, :address, :reset_pin, :select_pin]
-  defstruct @enforce_keys
-end
-
 defmodule ExScreen.SSD1306.Device do
-  @default_settings [width: 128, height: 64]
 
   # @defaults [device: "i2c-1", reset: nil]
-  @defaults [device: "spidev0.0", reset: nil]
+  # @defaults [device: "spidev1.0", reset: nil]
 
   use GenServer
   use Bitwise
@@ -16,7 +10,7 @@ defmodule ExScreen.SSD1306.Device do
   alias ExScreen.SSD1306.{Device, Device.Init, Commands}
   alias ElixirALE.{GPIO, I2C, SPI}
 
-  def start_link(%{bus: _, address: _, reset_pin: _} = config) do
+  def start_link(%Device.Init{bus: _, address: _, reset_pin: _} = config) do
     GenServer.start_link(__MODULE__, [config], name: __MODULE__)
   end
 
@@ -25,11 +19,18 @@ defmodule ExScreen.SSD1306.Device do
   def all_off, do: GenServer.call(__MODULE__, :all_off)
   def reset, do: GenServer.call(__MODULE__, :reset)
 
-  def init([%Device.Init{bus: bus, address: address, select_pin: cs_pin, reset_pin: reset_pin} = args]) do
-    state = Map.merge(@defaults, args)
+  def init([%Device.Init{bus: bus, address: address, reset_pin: reset_pin} = args]) do
+
+    settings = %Device.Settings{}
+    config = %ExScreen.SSD1306.Commands{}
+
+    state =
+      Map.from_struct(args)
+      |> Map.put(:settings, settings)
+      |> Map.put(:config, config)
 
     Logger.info(
-      "Connecting to SSD1306 device #{device_name(state)} (#{state.width}x#{state.height})"
+      "Connecting to SSD1306 device #{device_name(state)} (#{settings.width}x#{settings.height})"
     )
 
     device =
@@ -38,8 +39,8 @@ defmodule ExScreen.SSD1306.Device do
           {:ok, pid} = I2C.start_link(bus, address)
           %IOBus.I2C{pid: pid, bus_name: bus, address: address}
         "spi" <> _rem ->
-          {:ok, pid} = SPI.start_link(bus, address)
-          %IOBus.SPI{pid: pid, bus_name: bus, select_pin: cs_pin}
+          {:ok, pid} = SPI.start_link(bus)
+          %IOBus.SPI{pid: pid, bus_name: bus}
         "test" <> _rem ->
           %IOBus.Test{bus_name: bus}
     end
@@ -50,16 +51,19 @@ defmodule ExScreen.SSD1306.Device do
         %IOBus.GPIO{pid: reset_pid, pin: reset_pin}
       end
 
-    select =
-      case cs_pin do
-        nil ->
-           %IOBus.Empty{bus_name: "empty select_pin"}
-        cs_pin ->
-          {:ok, cs_pid} = GPIO.start_link(reset_pin, :output)
-          %IOBus.GPIO{pid: cs_pid, pin: reset_pin}
-      end
+    # select =
+    #   case cs_pin do
+    #     nil ->
+    #        %IOBus.Empty{bus_name: "empty select_pin"}
+    #     cs_pin ->
+    #       {:ok, cs_pid} = GPIO.start_link(reset_pin, :output)
+    #       %IOBus.GPIO{pid: cs_pid, pin: reset_pin}
+    #   end
 
-    state = %{ state | device: device, reset: reset, select: select}
+    state =
+      state
+      |> Map.put(:device, device)
+      |> Map.put(:reset, reset)
 
     case reset_device(state) do
       :ok -> {:ok, state}
@@ -114,8 +118,8 @@ defmodule ExScreen.SSD1306.Device do
          do: :ok
   end
 
-  def all_on_buffer(state), do: initialize_buffer(state, 1)
-  def all_off_buffer(state), do: initialize_buffer(state, 0)
+  def all_on_buffer(state), do: initialize_buffer(state.settings, 1)
+  def all_off_buffer(state), do: initialize_buffer(state.settings, 0)
 
   def initialize_buffer(%{width: width, height: height}, value) when value == 0 or value == 1 do
     byte_len = div(width * height, 8)
@@ -138,6 +142,9 @@ defmodule ExScreen.SSD1306.Device do
         apply(Commands, command, [pid, arg])
     end)
   end
+
+  def device_name(%{bus: bus, address: nil, reset_pin: reset}),
+    do: "#{bus}:--(#{reset})"
 
   def device_name(%{bus: bus, address: address, reset_pin: reset}),
     do: "#{bus}:#{i2h(address)}(#{reset})"

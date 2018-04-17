@@ -87,7 +87,7 @@ defmodule PruExample.Mixfile do
       {:beagle_pru_support, "~> 0.6.1", github: "elcritch/beagle_pru_support", runtime: false},
 
       # PRU Library support, sets $PRU_LIB
-      {:beagle_pru_interface, "~> 0.1.1", github: "elcritch/beagle_pru_interface", runtime: true}
+      {:beagle_pru_interface, "~> 0.1", github: "elcritch/beagle_pru_interface", runtime: true}
     ] ++ system(target)
   end
 
@@ -95,7 +95,7 @@ defmodule PruExample.Mixfile do
 
   def system("bbb_ti"),
     do: [
-      {:nerves_system_bbb_ti, "~> 1.0.1-rc.0-kern-v4.9.82-v2",
+      {:nerves_system_bbb_ti, "~> 1.0.1-rc.0-kern-v4.9.82-v3",
        github: "elcritch/nerves_system_bbb_ti", branch: "linux-4.9-ti-rt", runtime: false}
     ]
 

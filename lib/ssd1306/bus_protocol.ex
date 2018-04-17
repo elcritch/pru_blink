@@ -1,5 +1,5 @@
 defmodule IOBus.SPI do
-  @enforce_keys [:pid, :bus_name, :select_pin]
+  @enforce_keys [:pid, :bus_name]
   defstruct @enforce_keys
 end
 
@@ -66,27 +66,18 @@ end
 defimpl IOBus, for: IOBus.SPI do
   alias ElixirALE.SPI
 
-  def read(%IOBus.SPI{select_pin: select_pin} = device) do
-    GPIO.write(select_pin, 0)
-    res = SPI.transfer(device.pid, << 0x0 >>)
-    GPIO.write(select_pin, 1)
-    res
+  def read(%IOBus.SPI{} = device) do
+    SPI.transfer(device.pid, << 0x0 >>)
   end
 
-  def write(%IOBus.SPI{select_pin: select_pin} = device) do
-    GPIO.write(select_pin, 0)
-    SPI.transfer(device.pid, device)
-    GPIO.write(select_pin, 1)
-
+  def write(%IOBus.SPI{} = device, value) do
+    SPI.transfer(device.pid, value)
+    |> IO.inspect label: :spi
     :ok
   end
 
-  def xfer(%IOBus.SPI{select_pin: select_pin} = device, value) do
-    GPIO.write(select_pin, 0)
-    res = SPI.transfer(device.pid, device)
-    GPIO.write(select_pin, 1)
-
-    res
+  def xfer(%IOBus.SPI{} = device, value) do
+    SPI.transfer(device.pid, value)
   end
 end
 

@@ -1,39 +1,7 @@
-defmodule ExScreen.SSD1306.CommandFlags do
-  defstruct set_contrast: 0x81,
-            display_all_on_resume: 0xA4,
-            display_all_on: 0xA5,
-            normal_display: 0xA6,
-            invert_display: 0xA7,
-            display_off: 0xAE,
-            display_on: 0xAF,
-            set_display_offset: 0xD3,
-            set_com_pins: 0xDA,
-            set_vcom_detect: 0xDB,
-            set_display_clock_div: 0xD5,
-            set_pre_charge: 0xD9,
-            set_multiplex: 0xA8,
-            set_low_column: 0x00,
-            set_high_column: 0x10,
-            set_start_line: 0x40,
-            set_memory_mode: 0x20,
-            set_column_address: 0x21,
-            set_page_address: 0x22,
-            com_scan_inc: 0xC0,
-            com_scan_dec: 0xC8,
-            set_seg_remap: 0xA0,
-            set_charge_pump: 0x8D,
-            activate_scroll: 0x2F,
-            deactivate_scroll: 0x2E,
-            set_vertical_scroll_area: 0xA3,
-            right_horizontal_scroll: 0x26,
-            left_horizontal_scroll: 0x27,
-            vertical_and_right_horizontal_scroll: 0x29,
-            vertical_and_left_horizontal_scroll: 0x2A
-end
-
 defmodule ExScreen.SSD1306.Commands do
   use Bitwise
 
+  alias ElixirALE.{GPIO, I2C, SPI}
   defstruct display_clock_div: 0x80,
             multiplex: 0x3F,
             external_vcc: false,
@@ -170,8 +138,9 @@ defmodule ExScreen.SSD1306.Commands do
 
   def send_command(device, command) when is_list(command) do
     for byte <- command do
-      :ok = send_command(device, byte)
+      {:ok, _pid} = send_command(device, byte)
     end
+    |> List.last
   end
 
   def send_command({:ok, device}, byte) do
@@ -179,18 +148,20 @@ defmodule ExScreen.SSD1306.Commands do
   end
 
   def send_command(device, byte) do
-    :ok = IOBus.send(device, <<@control_register, byte>>)
+    :ok = IOBus.write(device, <<@control_register, byte>>)
   end
 
-  defp send_data(device, <<msb::integer-size(8), lsb::integer-size(8)>>) do
-    IOBus.send(device, <<@data_register, msb, lsb>>)
+  def send_data({:ok, device}, byte), do: send_data(device, byte)
+  def send_data(device, <<msb::integer-size(8), lsb::integer-size(8)>>) do
+    :ok = IOBus.write(device, <<@data_register, msb, lsb>>)
   end
 
-  defp send_buffer(device, <<_::integer-size(8), _::integer-size(8)>> = buffer) do
+  def send_buffer({:ok, device}, byte), do: send_buffer(device, byte)
+  def send_buffer(device, <<_::integer-size(8), _::integer-size(8)>> = buffer) do
     send_data(device, buffer)
   end
 
-  defp send_buffer(device, <<msb::integer-size(8), lsb::integer-size(8), rest::binary>>) do
+  def send_buffer(device, <<msb::integer-size(8), lsb::integer-size(8), rest::binary>>) do
     with :ok <- send_data(device, <<msb, lsb>>),
          :ok <- send_buffer(device, rest),
          do: :ok

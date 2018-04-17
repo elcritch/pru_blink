@@ -51,7 +51,7 @@ defmodule PruExample.Mixfile do
       #    placing it in a nerves branch, otherwise the dependency build order gets tricky
       #    and I don't know how to force the deps.compile order
       # {:nerves, github: "elcritch/nerves", branch: "host_tools_fork", override: true},
-      {:nerves, "1.0.0-rc.0"},
+      {:nerves, "1.0.0-rc.1"},
       {:msgpax, "~> 2.1"},
       {:cowboy, "~> 1.1"},
       {:plug, "~> 1.3"}
@@ -84,14 +84,14 @@ defmodule PruExample.Mixfile do
       # github: "elcritch/extras_toolchain_pru_cgt", branch: "master", runtime: true, override: true},
 
       # PRU Library support, sets $PRU_LIB
-      {:beagle_pru_support, "~> 0.6", github: "elcritch/beagle_pru_support", runtime: false},
+      {:beagle_pru_support, "~> 0.6.1", github: "elcritch/beagle_pru_support", runtime: false},
 
       # PRU Library support, sets $PRU_LIB
-      {:beagle_pru_interface, "~> 0.1", github: "elcritch/beagle_pru_interface", runtime: true}
+      {:beagle_pru_interface, "~> 0.1.1", github: "elcritch/beagle_pru_interface", runtime: true}
     ] ++ system(target)
   end
 
-  def system("bbb"), do: [{:nerves_system_bbb, "~> 1.0.0-rc", runtime: false}]
+  def system("bbb"), do: [{:nerves_system_bbb, "~> 1.0.0-rc.1", runtime: false}]
 
   def system("bbb_ti"),
     do: [

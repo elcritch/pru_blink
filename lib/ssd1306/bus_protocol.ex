@@ -1,5 +1,5 @@
 defmodule IOBus.SPI do
-  @enforce_keys [:pid, :select_pin]
+  @enforce_keys [:pid, :bus_name, :select_pin]
   defstruct @enforce_keys
 end
 
@@ -14,9 +14,15 @@ defmodule IOBus.GPIO do
 end
 
 defmodule IOBus.Test do
-  @enforce_keys [:name]
-  defstruct [:name, :count]
+  @enforce_keys [:bus_name]
+  defstruct [:bus_name, :count]
 end
+
+defmodule IOBus.Empty do
+  @enforce_keys [:bus_name]
+  defstruct [:bus_name]
+end
+
 
 defprotocol IOBus do
   @doc "read data via a given bus"

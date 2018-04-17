@@ -53,6 +53,7 @@ defmodule ExScreen.SSD1306.Display do
     # Anyone knows any other fonts that work here? btw. it shrinks with canvas size, but it's never larger than 11px
     path = :filename.join([:code.priv_dir(:percept), "fonts", "6x11_latin1.wingsfont"])
     font = :egd_font.load(path)
+
     # whatever
     color = :egd.color(:black)
 

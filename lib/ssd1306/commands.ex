@@ -55,12 +55,12 @@ defmodule ExScreen.SSD1306.Commands do
   @doc """
   Reset the SSD1306 using the GPIO reset pin.
   """
-  def reset!(gpio_pid) do
-    with :ok <- GPIO.write(gpio_pid, 1),
+  def reset!(%IOBus.GPIO{} = reset) do
+    with :ok <- GPIO.write(reset.pid, 1),
          :ok <- :timer.sleep(1),
-         :ok <- GPIO.write(gpio_pid, 0),
+         :ok <- GPIO.write(reset.pid, 0),
          :ok <- :timer.sleep(10),
-         :ok <- GPIO.write(gpio_pid, 1),
+         :ok <- GPIO.write(reset.pid, 1),
          do: :ok
   end
 

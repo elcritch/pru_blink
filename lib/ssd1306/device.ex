@@ -1,12 +1,13 @@
 defmodule ExScreen.SSD1306.Device.Init do
-  @enforce_keys [:bus, :address, :reset_pin]
+  @enforce_keys [:bus, :address, :reset_pin, :select_pin]
   defstruct @enforce_keys
 end
 
 defmodule ExScreen.SSD1306.Device do
   @default_settings [width: 128, height: 64]
 
-  @defaults [device: "i2c-1", reset: nil]
+  # @defaults [device: "i2c-1", reset: nil]
+  @defaults [device: "spidev0.0", reset: nil]
 
   use GenServer
   use Bitwise
@@ -24,23 +25,41 @@ defmodule ExScreen.SSD1306.Device do
   def all_off, do: GenServer.call(__MODULE__, :all_off)
   def reset, do: GenServer.call(__MODULE__, :reset)
 
-  def init([%Device.Init{bus: bus, address: address, reset_pin: reset} = args]) do
+  def init([%Device.Init{bus: bus, address: address, select_pin: cs_pin, reset_pin: reset_pin} = args]) do
     state = Map.merge(@defaults, args)
 
     Logger.info(
       "Connecting to SSD1306 device #{device_name(state)} (#{state.width}x#{state.height})"
     )
 
-    {:ok, i2c_pid} = I2C.start_link(bus, address)
-    device = %IOBus.I2C{pid: i2c_pid, bus_name: bus, address: address}
+    device =
+      case bus do
+        "i2c" <> _rem ->
+          {:ok, pid} = I2C.start_link(bus, address)
+          %IOBus.I2C{pid: pid, bus_name: bus, address: address}
+        "spi" <> _rem ->
+          {:ok, pid} = SPI.start_link(bus, address)
+          %IOBus.SPI{pid: pid, bus_name: bus, select_pin: cs_pin}
+        "test" <> _rem ->
+          %IOBus.Test{bus_name: bus}
+    end
 
-    {:ok, gpio} = GPIO.start_link(reset, :output)
-    reset = %IOBus.GPIO{pid: gpio, pin: reset}
+    reset =
+      with {:ok, reset_pid} <- GPIO.start_link(reset_pin, :output)
+      do
+        %IOBus.GPIO{pid: reset_pid, pin: reset_pin}
+      end
 
-    state =
-      state
-      |> Map.put(:device, device)
-      |> Map.put(:reset, reset)
+    select =
+      case cs_pin do
+        nil ->
+           %IOBus.Empty{bus_name: "empty select_pin"}
+        cs_pin ->
+          {:ok, cs_pid} = GPIO.start_link(reset_pin, :output)
+          %IOBus.GPIO{pid: cs_pid, pin: reset_pin}
+      end
+
+    state = %{ state | device: device, reset: reset, select: select}
 
     case reset_device(state) do
       :ok -> {:ok, state}

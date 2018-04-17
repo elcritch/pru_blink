@@ -164,7 +164,7 @@ defmodule ExScreen.SSD1306.Commands do
   def send_buffer(device, <<msb::integer-size(8), lsb::integer-size(8), rest::binary>>) do
     with :ok <- send_data(device, <<msb, lsb>>),
          :ok <- send_buffer(device, rest),
-         do: :ok
+         do: {:ok, device}
   end
 
   defp vcc_is_external(%{external_vcc: true}, value, _), do: value

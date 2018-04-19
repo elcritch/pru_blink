@@ -25,7 +25,7 @@ defmodule ExScreen.SSD1306.Commands do
   @doc """
   Reset the SSD1306 using the GPIO reset pin.
   """
-  def reset!(%IOBus.GPIO{} = reset) do
+  def reset!(%Devices{reset: reset} = devices) do
     with :ok <- GPIO.write(reset.pid, 1),
          :ok <- :timer.sleep(1),
          :ok <- GPIO.write(reset.pid, 0),
@@ -150,12 +150,16 @@ defmodule ExScreen.SSD1306.Commands do
   end
 
   def send_command(%Devices{} = devices, byte) do
-    :ok = IOBus.write(devices, <<@control_register, byte>>)
+    :ok = GPIO.write(devices.dcpin, 1)
+    :ok = IOBus.write(devices.iobus, <<@control_register, byte>>)
+    :ok = GPIO.write(devices.dcpin, 0)
   end
 
   def send_data({:ok, %Devices{} = devices}, byte), do: send_data(devices, byte)
   def send_data(devices, <<msb::integer-size(8), lsb::integer-size(8)>>) do
-    :ok = IOBus.write(devices, <<@data_register, msb, lsb>>)
+    :ok = GPIO.write(devices.dcpin, 0)
+    :ok = IOBus.write(devices.iobus, <<@data_register, msb, lsb>>)
+    :ok = GPIO.write(devices.dcpin, 0)
   end
 
   def send_buffer({:ok, %Devices{} = devices}, byte), do: send_buffer(devices, byte)

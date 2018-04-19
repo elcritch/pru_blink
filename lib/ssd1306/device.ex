@@ -7,10 +7,11 @@ defmodule ExScreen.SSD1306.Device do
   use Bitwise
   require Logger
 
-  alias ExScreen.SSD1306.{Device, Device.Init, Commands}
+  alias ExScreen.SSD1306.{Commands, Device, Device.Init, Device.Settings, Device.Items}
+
   alias ElixirALE.{GPIO, I2C, SPI}
 
-  def start_link(%Device.Init{bus: _, address: _, reset_pin: _} = config) do
+  def start_link(%Device.Init{bus: _, address: _, reset_pin: _, dc_pin: _} = config) do
     GenServer.start_link(__MODULE__, [config], name: __MODULE__)
   end
 
@@ -33,7 +34,7 @@ defmodule ExScreen.SSD1306.Device do
       "Connecting to SSD1306 device #{device_name(state)} (#{settings.width}x#{settings.height})"
     )
 
-    device =
+    iobus =
       case bus do
         "i2c" <> _rem ->
           {:ok, pid} = I2C.start_link(bus, address)
@@ -52,15 +53,6 @@ defmodule ExScreen.SSD1306.Device do
         %IOBus.GPIO{pid: reset_pid, pin: reset_pin}
       end
 
-    # select =
-    #   case cs_pin do
-    #     nil ->
-    #        %IOBus.Empty{bus_name: "empty select_pin"}
-    #     cs_pin ->
-    #       {:ok, cs_pid} = GPIO.start_link(reset_pin, :output)
-    #       %IOBus.GPIO{pid: cs_pid, pin: reset_pin}
-    #   end
-
     dc_pin =
       case dc_pin do
         nil ->
@@ -72,9 +64,7 @@ defmodule ExScreen.SSD1306.Device do
 
     state =
       state
-      |> Map.put(:device, device)
-      |> Map.put(:reset, reset)
-      |> Map.put(:dcpin, dc_pin)
+      |> Map.put(:devices, %Device.Devices{iobus: iobus, reset: reset, dcpin: dc_pin})
 
     case reset_device(state) do
       :ok -> {:ok, state}
@@ -118,14 +108,14 @@ defmodule ExScreen.SSD1306.Device do
          byte_size(buffer)
        } bytes."}
 
-  def reset_device(%{device: device, reset: reset} = state) do
+  def reset_device(%{devices: devices, reset: reset} = state) do
     commands = Map.get(state, :commands, [])
 
     with :ok <- Commands.reset!(reset),
          :ok <- Commands.initialize!(state),
          :ok <- Commands.display(state, all_off_buffer(state)),
-         :ok <- apply_commands(device, commands),
-         :ok <- Commands.display_on!(device),
+         :ok <- apply_commands(devices, commands),
+         :ok <- Commands.display_on!(devices),
          do: :ok
   end
 

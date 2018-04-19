@@ -1,6 +1,8 @@
 defmodule ExScreen.SSD1306.Commands do
   use Bitwise
 
+  alias ExScreen.SSD1306.Device.Devices
+
   alias ElixirALE.{GPIO, I2C, SPI}
   defstruct display_clock_div: 0x80,
             multiplex: 0x3F,
@@ -52,9 +54,9 @@ defmodule ExScreen.SSD1306.Commands do
           vcom_detect: 0x40
         }]
   """
-  def initialize!(%{device: device, config: config}) do
-    {:ok, ^device} =
-      {:ok, device}
+  def initialize!(%{devices: %Devices{} = devices, config: config}) do
+    {:ok, ^devices} =
+      {:ok, devices}
       |> display_off!()
       |> display_clock_div(config.display_clock_div || 0x80)
       |> display_clock_div(config.display_clock_div || 0x80)
@@ -82,11 +84,11 @@ defmodule ExScreen.SSD1306.Commands do
     * A map with `:i2c` set to the I2c connection pid, `:width` and `:height in pixels.
     * A bytestring containing the buffer to be displayed.
   """
-  def display(%{device: device, settings: %{width: width, height: height}}, buffer) do
+  def display(%{devices: %Devices{} = devices, settings: %{width: width, height: height}}, buffer) do
     pages = div(height, 8)
 
-    {:ok, ^device} =
-      {:ok, device}
+    {:ok, ^devices} =
+      {:ok, devices}
       |> column_address(0, width - 1)
       |> page_address(0, pages - 1)
       |> send_buffer(buffer)
@@ -136,35 +138,35 @@ defmodule ExScreen.SSD1306.Commands do
   def vertical_and_left_horizontal_scroll!(dev),
     do: send_command(dev, @cmds.vertical_and_left_horizontal_scroll)
 
-  def send_command(device, command) when is_list(command) do
+  def send_command(%Devices{} = devices, command) when is_list(command) do
     for byte <- command do
-      {:ok, _pid} = send_command(device, byte)
+      {:ok, _pid} = send_command(devices, byte)
     end
     |> List.last
   end
 
-  def send_command({:ok, device}, byte) do
-    {send_command(device, byte), device}
+  def send_command({:ok, %Devices{} = devices}, byte) do
+    {send_command(devices, byte), devices}
   end
 
-  def send_command(device, byte) do
-    :ok = IOBus.write(device, <<@control_register, byte>>)
+  def send_command(%Devices{} = devices, byte) do
+    :ok = IOBus.write(devices, <<@control_register, byte>>)
   end
 
-  def send_data({:ok, device}, byte), do: send_data(device, byte)
-  def send_data(device, <<msb::integer-size(8), lsb::integer-size(8)>>) do
-    :ok = IOBus.write(device, <<@data_register, msb, lsb>>)
+  def send_data({:ok, %Devices{} = devices}, byte), do: send_data(devices, byte)
+  def send_data(devices, <<msb::integer-size(8), lsb::integer-size(8)>>) do
+    :ok = IOBus.write(devices, <<@data_register, msb, lsb>>)
   end
 
-  def send_buffer({:ok, device}, byte), do: send_buffer(device, byte)
-  def send_buffer(device, <<_::integer-size(8), _::integer-size(8)>> = buffer) do
-    send_data(device, buffer)
+  def send_buffer({:ok, %Devices{} = devices}, byte), do: send_buffer(devices, byte)
+  def send_buffer(devices, <<_::integer-size(8), _::integer-size(8)>> = buffer) do
+    send_data(devices, buffer)
   end
 
-  def send_buffer(device, <<msb::integer-size(8), lsb::integer-size(8), rest::binary>>) do
-    with :ok <- send_data(device, <<msb, lsb>>),
-         :ok <- send_buffer(device, rest),
-         do: {:ok, device}
+  def send_buffer(%Devices{} = devices, <<msb::integer-size(8), lsb::integer-size(8), rest::binary>>) do
+    with :ok <- send_data(devices, <<msb, lsb>>),
+         :ok <- send_buffer(devices, rest),
+         do: {:ok, devices}
   end
 
   defp vcc_is_external(%{external_vcc: true}, value, _), do: value

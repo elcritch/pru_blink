@@ -19,7 +19,7 @@ defmodule ExScreen.SSD1306.Device do
   def all_off, do: GenServer.call(__MODULE__, :all_off)
   def reset, do: GenServer.call(__MODULE__, :reset)
 
-  def init([%Device.Init{bus: bus, address: address, reset_pin: reset_pin} = args]) do
+  def init([%Device.Init{bus: bus, address: address, reset_pin: reset_pin, dc_pin: dc_pin} = args]) do
 
     settings = %Device.Settings{}
     config = %ExScreen.SSD1306.Commands{}
@@ -61,10 +61,20 @@ defmodule ExScreen.SSD1306.Device do
     #       %IOBus.GPIO{pid: cs_pid, pin: reset_pin}
     #   end
 
+    dc_pin =
+      case dc_pin do
+        nil ->
+            %IOBus.Empty{bus_name: "empty select_pin"}
+        dc_pin ->
+          {:ok, dc_pid} = GPIO.start_link(dc_pin, :output)
+          %IOBus.GPIO{pid: dc_pid, pin: dc_pin}
+      end
+
     state =
       state
       |> Map.put(:device, device)
       |> Map.put(:reset, reset)
+      |> Map.put(:dcpin, dc_pin)
 
     case reset_device(state) do
       :ok -> {:ok, state}

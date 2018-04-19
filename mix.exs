@@ -95,7 +95,7 @@ defmodule PruExample.Mixfile do
 
   def system("bbb_ti"),
     do: [
-      {:nerves_system_bbb_ti, "~> 1.0.1-rc.0-kern-v4.9.82-v3",
+      {:nerves_system_bbb_ti, "1.0.1-rc.0-kern-v4.9.82-v3",
        github: "elcritch/nerves_system_bbb_ti", branch: "linux-4.9-ti-rt", runtime: false}
     ]
 

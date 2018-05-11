@@ -16,16 +16,18 @@ export STACK_SIZE=0x100
 export HEAP_SIZE=0x100
 #------------------------------------
 
-all: $(SUBDIRS)
+all: clean $(SUBDIRS)
 
 $(SUBDIRS):
+	@echo "Entering: " $@
 	@echo PRU_CGT: $(PRU_CGT)
 	@echo PRU_LIB: $(PRU_LIB)
+	@echo ""
 	$(MAKE) -C $@
 
 clean:
-	$(eval export PRU_CGT := "/dev/null")
-	@for d in $(SUBDIRS); do (cd $$d; $(MAKE) clean ); done
+	@for d in $(SUBDIRS); do (cd $$d; PRU_CGT="/dev/null" $(MAKE) clean ); done
+	@echo "**************** Done Cleaning *********************"
 
 .PHONY: $(SUBDIRS)
 

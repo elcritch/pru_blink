@@ -51,13 +51,11 @@ defmodule PruExample.Mixfile do
       #    placing it in a nerves branch, otherwise the dependency build order gets tricky
       #    and I don't know how to force the deps.compile order
       # {:nerves, github: "elcritch/nerves", branch: "host_tools_fork", override: true},
-      {:nerves, "1.0.0-rc.0"},
+      {:nerves, "1.0.0"},
 
       {:msgpax, "~> 2.1"},
       {:cowboy, "~> 1.1"},
       {:plug, "~> 1.3"},
-      # {:esshd, "~> 0.1.0"},
-      # {:temp, "~> 0.4"},
 
     ] ++ deps(@target)
   end
@@ -79,7 +77,7 @@ defmodule PruExample.Mixfile do
       {:nerves_init_gadget, "~> 0.2"},
       {:ring_logger, "~> 0.4"},
 
-      {:adafruit_display, "~> 0.1.0", github: "elcritch/adafruit_display", },
+      # {:adafruit_display, "~> 0.1.0", github: "elcritch/adafruit_display", },
       # {:adafruit_display, "~> 0.1.0", path: "../contracts/adafruit_display/", },
 
       # Toolchain Extras for PRU CGT Compiler, set $PRU_CGT
@@ -87,7 +85,7 @@ defmodule PruExample.Mixfile do
       # github: "elcritch/extras_toolchain_pru_cgt", branch: "master", runtime: true, override: true},
 
       # PRU Library support, sets $PRU_LIB
-      {:beagle_pru_support, "~> 0.6", github: "elcritch/beagle_pru_support", runtime: false},
+      {:beagle_pru_support, "~> 0.7", github: "elcritch/beagle_pru_support", runtime: false},
 
       # PRU Library support, sets $PRU_LIB
       {:beagle_pru_interface, "~> 0.1", github: "elcritch/beagle_pru_interface", runtime: true}
@@ -95,7 +93,7 @@ defmodule PruExample.Mixfile do
     ] ++ system(target)
   end
 
-  def system("bbb"), do: [{:nerves_system_bbb, "~> 1.0.0-rc", runtime: false}]
+  def system("bbb"), do: [{:nerves_system_bbb, "~> 1.0.0", runtime: false}]
   def system("bbb_ti"),
       do: [
       {:nerves_system_bbb_ti, "~> 1.0.1-rc.0-kern-v4.9.82-v2",

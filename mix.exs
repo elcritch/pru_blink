@@ -77,18 +77,13 @@ defmodule PruExample.Mixfile do
       {:nerves_init_gadget, "~> 0.2"},
       {:ring_logger, "~> 0.4"},
 
-      # {:adafruit_display, "~> 0.1.0", github: "elcritch/adafruit_display", },
-      # {:adafruit_display, "~> 0.1.0", path: "../contracts/adafruit_display/", },
-
       # Toolchain Extras for PRU CGT Compiler, set $PRU_CGT
-      # {:toolchain_extras_pru_cgt, "~> 2.2.1",
-      # github: "elcritch/extras_toolchain_pru_cgt", branch: "master", runtime: true, override: true},
 
       # PRU Library support, sets $PRU_LIB
-      {:beagle_pru_support, "~> 0.7", github: "elcritch/beagle_pru_support", runtime: false},
+      {:beagle_pru_support, "~> 0.7", runtime: false},
 
       # PRU Library support, sets $PRU_LIB
-      {:beagle_pru_interface, "~> 0.1", github: "elcritch/beagle_pru_interface", runtime: true}
+      {:beagle_pru_interface, "~> 0.1"},
 
     ] ++ system(target)
   end

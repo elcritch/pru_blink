@@ -1,7 +1,7 @@
 %{
   "adafruit_display": {:git, "https://github.com/elcritch/adafruit_display.git", "8c2c957d5d082f4feb8b1e43e59c9e5d2f846352", []},
-  "beagle_pru_interface": {:git, "https://github.com/elcritch/beagle_pru_interface.git", "dce07c92dfe24afe9408165cb41ea3d0a61069fe", []},
-  "beagle_pru_support": {:git, "https://github.com/elcritch/beagle_pru_support.git", "d7f428c4cd5f4e956a0610c22c43853a15ed6ec1", []},
+  "beagle_pru_interface": {:hex, :beagle_pru_interface, "0.1.1", "c8bdeb3771f18295a3ef12815c5d1fe4d16faed1bb25c703d32bf087c37f043a", [:make, :mix], [{:elixir_make, "~> 0.4.0", [hex: :elixir_make, repo: "hexpm", optional: false]}], "hexpm"},
+  "beagle_pru_support": {:hex, :beagle_pru_support, "0.7.1", "dddb5b367f251bf5add90792edb38c765a5d2d6487edc92bcf82be298cf2c520", [:make, :mix], [{:toolchain_extras_pru_cgt, "~> 3.0.1", [hex: :toolchain_extras_pru_cgt, repo: "hexpm", optional: false]}], "hexpm"},
   "cowboy": {:hex, :cowboy, "1.1.2", "61ac29ea970389a88eca5a65601460162d370a70018afe6f949a29dca91f3bb0", [:rebar3], [{:cowlib, "~> 1.0.2", [hex: :cowlib, repo: "hexpm", optional: false]}, {:ranch, "~> 1.3.2", [hex: :ranch, repo: "hexpm", optional: false]}], "hexpm"},
   "cowlib": {:hex, :cowlib, "1.0.2", "9d769a1d062c9c3ac753096f868ca121e2730b9a377de23dec0f7e08b1df84ee", [:make], [], "hexpm"},
   "distillery": {:hex, :distillery, "1.5.2", "eec18b2d37b55b0bcb670cf2bcf64228ed38ce8b046bb30a9b636a6f5a4c0080", [:mix], [], "hexpm"},
@@ -29,6 +29,6 @@
   "shoehorn": {:hex, :shoehorn, "0.2.0", "6aa80804145c545c59af01980d255209483b14826f53411b4a8797b24c323c20", [:mix], [{:distillery, "~> 1.0", [hex: :distillery, repo: "hexpm", optional: false]}], "hexpm"},
   "socket": {:hex, :socket, "0.3.13", "98a2ab20ce17f95fb512c5cadddba32b57273e0d2dba2d2e5f976c5969d0c632", [:mix], [], "hexpm"},
   "system_registry": {:hex, :system_registry, "0.8.0", "09240347628b001433d18279a2759ef7237ba7361239890d8c599cca9a2fbbc2", [:mix], [], "hexpm"},
-  "toolchain_extras": {:git, "https://github.com/elcritch/toolchain_extras.git", "a94bc63583544fdad02ec37bb95bb89ea7b799e8", []},
-  "toolchain_extras_pru_cgt": {:git, "https://github.com/elcritch/extras_toolchain_pru_cgt.git", "392ebd4bb177644776bf52f4bbc14ede6cfb1e47", []},
+  "toolchain_extras": {:hex, :toolchain_extras, "0.2.0", "99b303a36712c4d77ec6a6b2de251d060cf45cedf1af2ba46e7869180251ac88", [:mix], [{:nerves, "~> 1.0", [hex: :nerves, repo: "hexpm", optional: false]}], "hexpm"},
+  "toolchain_extras_pru_cgt": {:hex, :toolchain_extras_pru_cgt, "3.0.1", "4fe34d5bb95238f777f8754f4f29a1749996163aac9ec09a22c23922c6728a36", [:mix], [{:nerves, "~> 1.0", [hex: :nerves, repo: "hexpm", optional: false]}, {:toolchain_extras, "~> 0.2", [hex: :toolchain_extras, repo: "hexpm", optional: false]}], "hexpm"},
 }

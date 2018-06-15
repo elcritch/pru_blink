@@ -1,6 +1,6 @@
 %{
   "adafruit_display": {:git, "https://github.com/elcritch/adafruit_display.git", "8c2c957d5d082f4feb8b1e43e59c9e5d2f846352", []},
-  "beagle_pru_interface": {:hex, :beagle_pru_interface, "0.1.2", "fcc7fe8cb00e642a3143c5bb1c311f054c2cd6371f89c765627a030ceceb745e", [:make, :mix], [{:elixir_make, "~> 0.4.0", [hex: :elixir_make, repo: "hexpm", optional: false]}], "hexpm"},
+  "beagle_pru_interface": {:hex, :beagle_pru_interface, "0.1.2", "2a2d178882ee3497e387544e35d015cfde11b056d05337fbda27e5984ff608dd", [:make, :mix], [{:elixir_make, "~> 0.4.0", [hex: :elixir_make, repo: "hexpm", optional: false]}], "hexpm"},
   "beagle_pru_support": {:hex, :beagle_pru_support, "0.7.1", "dddb5b367f251bf5add90792edb38c765a5d2d6487edc92bcf82be298cf2c520", [:make, :mix], [{:toolchain_extras_pru_cgt, "~> 3.0.1", [hex: :toolchain_extras_pru_cgt, repo: "hexpm", optional: false]}], "hexpm"},
   "cowboy": {:hex, :cowboy, "1.1.2", "61ac29ea970389a88eca5a65601460162d370a70018afe6f949a29dca91f3bb0", [:rebar3], [{:cowlib, "~> 1.0.2", [hex: :cowlib, repo: "hexpm", optional: false]}, {:ranch, "~> 1.3.2", [hex: :ranch, repo: "hexpm", optional: false]}], "hexpm"},
   "cowlib": {:hex, :cowlib, "1.0.2", "9d769a1d062c9c3ac753096f868ca121e2730b9a377de23dec0f7e08b1df84ee", [:make], [], "hexpm"},

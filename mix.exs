@@ -83,7 +83,7 @@ defmodule PruExample.Mixfile do
       {:beagle_pru_support, "~> 0.7", runtime: false},
 
       # PRU Library support, sets $PRU_LIB
-      {:beagle_pru_interface, "~> 0.1"},
+      {:beagle_pru_interface, "~> 0.1.2"},
 
     ] ++ system(target)
   end
